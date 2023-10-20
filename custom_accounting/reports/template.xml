@@ -20,7 +20,7 @@
                                 </td>
                             </tr>
                         </table>
-                        <table style="width:95%; margin-left: 45px;"
+                        <table style="width:95%; margin-left: 45px; font-family: Arial, sans-serif; font-size: 12pt;"
                                class="table table-condensed">
                             <tr style="margin-bottom: 20px">
 
@@ -28,13 +28,25 @@
 
                             <tr></tr>
                             <tr>
-                                <td style="font-size: 20px">
-                                    <span>INVOICE</span>
+                                <td style="font-size: 25px">
+                                    <div t-if="o.origin">
+                                        <span>DEBIT NOTE</span>
+                                    </div>
+                                    <div t-else="">
+                                        <span>INVOICE</span>
+                                    </div>
                                 </td>
                                 <td style="text-align: left">
-                                    <span>
-                                        <strong>Invoice Date</strong>
-                                    </span>
+                                    <div t-if="o.origin">
+                                        <span>
+                                            <strong>Date</strong>
+                                        </span>
+                                    </div>
+                                    <div t-else="">
+                                        <span>
+                                            <strong>Invoice Date</strong>
+                                        </span>
+                                    </div>
                                 </td>
                                 <td style="text-align: right;">
                                     <span>Metalogistics Africa Limited</span>
@@ -43,7 +55,8 @@
                             <tr>
                                 <td></td>
                                 <td style="text-align: left">
-                                    <span>17 Aug 2023</span>
+                                    <span t-esc="o.date_invoice.strftime('%d %b %Y')"/>
+                                    <!--                                    <span>17 Aug 2023</span>-->
                                 </td>
                                 <td style="text-align: right;">
                                     <span>Attention: Country Manager</span>
@@ -54,9 +67,16 @@
                                     <span>REDINGTON TANZANIA LIMITED</span>
                                 </td>
                                 <td style="text-align: left">
-                                    <span>
-                                        <strong>Invoice Number</strong>
-                                    </span>
+                                    <div t-if="o.origin">
+                                        <span>
+                                            <strong>Debit Note #</strong>
+                                        </span>
+                                    </div>
+                                    <div t-else="">
+                                        <span>
+                                            <strong>Invoice Number</strong>
+                                        </span>
+                                    </div>
                                 </td>
                                 <td style="text-align: right">
                                     <span>PO Box 10064, Keko Mwanga</span>
@@ -67,7 +87,7 @@
                                     <span>Attention: REDINGTON TANZANIA LIMITED</span>
                                 </td>
                                 <td style="text-align: left">
-                                    <span>MA-0089</span>
+                                    <span t-field="o.number"/>
                                 </td>
                                 <td style="text-align: right">
                                     <span>TEMEKE DAR ES SALAAM</span>
@@ -85,9 +105,20 @@
                                     <span>UNITED NATIONS ROAD</span>
                                 </td>
                                 <td>
-                                    <span>
-                                        <strong>Due Date: 01 Sep 2023</strong>
-                                    </span>
+                                    <div t-if="o.origin">
+                                        <span>
+                                            <strong>Debit Note for Invoice</strong>
+                                            <br/>
+                                        </span>
+                                        <span t-field="o.origin"/>
+                                    </div>
+                                    <div t-else="">
+                                        <span>
+                                            <strong>Due Date:
+                                                <span t-esc="o.date_due.strftime('%d %b %Y')"/>
+                                            </strong>
+                                        </span>
+                                    </div>
                                 </td>
                                 <td style="text-align: right">
                                     <span>TIN:
@@ -136,7 +167,7 @@
                             </tr>
                         </table>
 
-                        <table style="width: 95%; margin-top: 18px; border-collapse: collapse; margin-left: 45px; border: 1px solid #000;">
+                        <table style="width: 95%; margin-top: 18px; border-collapse: collapse; margin-left: 45px; border: 1px solid #000; font-family: Arial, sans-serif; font-size: 12pt;">
                             <thead>
                                 <tr style="font-size: 18px;">
                                     <th style="border: 1px solid #000; padding: 8px; text-align: left; background-color: #f2f2f2;">
@@ -202,7 +233,7 @@
 
                             </tbody>
                         </table>
-                        <table style="width: 100%; border-collapse: collapse; margin-top: 18px">
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 18px; font-family: Arial, sans-serif; font-size: 12pt;">
                             <tr>
                                 <td style="padding: 8px; text-align: left; background-color: #ffffff;">
                                 </td>
@@ -298,6 +329,74 @@
                                 </tr>
                             </t>
                         </table>
+                        <table style="width: 95%; margin-top: 60px; border-collapse: collapse; margin-left: 45px; font-family: Arial, sans-serif; font-size: 12pt; ">
+                            <tr>
+                                <td style="width: 25%">
+                                    <span>
+                                        <strong>
+                                            <u>Bank Details</u>
+                                        </strong>
+                                    </span>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="width: 25%">
+                                    <span>Bank Name:</span>
+                                </td>
+                                <td>
+                                    <span>NBC Bank</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 25%">
+                                    <span>Account Name:</span>
+                                </td>
+                                <td>
+                                    <span>Metalogistics Africa Limited</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 25%">
+                                    <span>Account Number: (TZS)</span>
+                                </td>
+                                <td>
+                                    <span>086103002193</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="width: 25%">
+                                    <span>SWIFT Code:</span>
+                                </td>
+                                <td>
+                                    <span>NLCBTZT</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div t-if="o.origin">
+                    <div style="position: absolute; bottom: 0; left: 0; right: 0; text-align: center;  font-family: Arial, sans-serif; font-size: 10pt;">
+                        <span>
+                            Company Registration No: 155567104. Registered Office: PO Box 10064, Keko Mwanga, Temeke,
+                            Dar es Salaam,
+                            Tanzania
+                        </span>
+                    </div>
+                </div>
+                <div t-else="">
+                    <div style="position: absolute; bottom: 0; left: 0; right: 0; text-align: center;  font-family: Arial, sans-serif; font-size: 10pt;">
+                        <span>File No.
+                            <span t-field="o.file_no"/>
+                            |AWB/BL:
+                            <span t-field="o.awb_bl"/>
+                            TANSADNo.<span t-field="o.tansad_no"/>|PKG No:<span t-field="o.pkg_no"/>|KGS|Weight:
+                            <span
+                                    t-field="o.weight"/>KGS|D/N
+                            No:
+                            <span t-field="o.number"/>
+                        </span>
                     </div>
                 </div>
             </t>

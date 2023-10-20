@@ -15,6 +15,7 @@
         'reports/reports.xml',
         'reports/template.xml',
         'views/views.xml',
+        'views/brand_remove.xml',
     ],
     'installable': True,
     'application': True,

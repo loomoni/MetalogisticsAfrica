@@ -1,14 +1,90 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <!-- Inherit the invoice to add print button -->
-<!--    <record id="view_account_invoice_form_inherited" model="ir.ui.view">-->
-<!--        <field name="name">account.invoice.form.inherit</field>-->
-<!--        <field name="model">account.invoice</field>-->
-<!--        <field name="inherit_id" ref="account.invoice_supplier_form"/>-->
-<!--        <field name="arch" type="xml">-->
-<!--            <xpath expr="//form/header/button[@name='action_invoice_open']" position="replace">-->
-<!--                <button string="Validate" states="draft" name="action_invoice_to_open" type="object" class="oe_highlight"/>-->
-<!--            </xpath>-->
-<!--        </field>-->
-<!--    </record>-->
+    <data>
+        <!-- Inherit Form View to Modify it -->
+        <record id="invoice_inherit_id" model="ir.ui.view">
+            <field name="name">invoice.inherit.id</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/header/button[@name='action_invoice_sent']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='payment_term_id']" position="after">
+                    <field name="file_no"/>
+                    <field name="awb_bl"/>
+                    <field name="tansad_no"/>
+                </xpath>
+                <xpath expr="//field[@name='date_due']" position="after">
+                    <field name="pkg_no"/>
+                    <field name="weight"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <!--    Printing Customer Invoice -->
+        <record model="ir.ui.view" id="customer_invoice_report_wizard">
+            <field name="name">Customer Invoice Report</field>
+            <field name="model">customer.invoice.report.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Customer Invoice Report">
+                    <group>
+                        <field name="customer_id"
+                               options="{'no_create_edit': True, 'no_create': True, 'no_open': True}"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="date_from"/>
+                        </group>
+                        <group>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="state"/>
+                    </group>
+                    <footer>
+                        <button name="get_report" string="Get Report" type="object" class="oe_highlight"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_invoice_report_wizard_excel">
+            <field name="name">view.customer.invoice.report.excel</field>
+            <field name="model">customer.invoice.report.excel</field>
+            <field name="arch" type="xml">
+                <form string="Download Customer Invoices Report Here">
+                    <field name="name" invisible="1"/>
+                    <field name="file_download" widget="download_link" filename="name"/>
+                </form>
+            </field>
+        </record>
+
+
+        <act_window id="action_customer_invoice_report"
+                    name="Customer Invoice Report"
+                    res_model="customer.invoice.report.wizard"
+                    view_mode="form"
+                    target="new"/>
+
+
+        <menuitem
+                id="excel_reports_id"
+                name="Excel Reports"
+                parent="account.menu_finance"
+                sequence="21"
+                groups="account.group_account_manager"/>
+
+        <menuitem
+                id="invoice_excel_reports_id"
+                name="Customers Invoice"
+                action="action_customer_invoice_report"
+                parent="excel_reports_id"
+                sequence="1"
+                groups="account.group_account_manager"/>
+    </data>
 </odoo>
