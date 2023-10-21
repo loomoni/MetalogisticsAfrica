@@ -5,6 +5,8 @@ from io import BytesIO
 
 import xlsxwriter
 from dateutil.relativedelta import relativedelta
+from docutils.parsers import null
+from xlsxwriter.utility import xl_range
 
 from odoo import fields, models, api, _
 from odoo.tools import datetime
@@ -75,9 +77,9 @@ class CustomerInvoiceWizard(models.TransientModel):
         fp = BytesIO()
 
         workbook = xlsxwriter.Workbook(fp)
-        worksheet = workbook.add_worksheet()
+        worksheet = workbook.add_worksheet('Customer Invoice report')
         # Disable gridlines
-        # worksheet.hide_gridlines(2)  # 2 means 'both'
+        worksheet.hide_gridlines(2)  # 2 means 'both'
 
         heading_company_format = workbook.add_format({
             # 'bold': True,
@@ -107,8 +109,12 @@ class CustomerInvoiceWizard(models.TransientModel):
                                                        'num_format': '#,###0.00'})
         cell_body_number_format.set_border()
 
-        worksheet = workbook.add_worksheet(
-            'Customer Invoice report ' + str(self.date_from) + ' - ' + str(self.date_to) + ' report.xlsx')
+        cell_result_body_number_format = workbook.add_format({'align': 'right',
+                                                              'bold': True,
+                                                              'size': 13,
+                                                              'fg_color': '#FFCC00',
+                                                              'num_format': '#,###0.00'})
+        cell_result_body_number_format.set_border()
 
         worksheet.set_row(0, 25)
 
@@ -120,9 +126,9 @@ class CustomerInvoiceWizard(models.TransientModel):
             row = 0
             col = 0
 
-            worksheet.write(row, 0, 'ContactName', cell_title_text_format)
-            worksheet.write(row, 1, 'InvoiceNumber', cell_title_text_format)
-            worksheet.write(row, 2, 'Creator', cell_title_text_format)
+            worksheet.write(row, 0, 'Contact Name', cell_title_text_format)
+            worksheet.write(row, 1, 'Invoice Number', cell_title_text_format)
+            worksheet.write(row, 2, 'Operator', cell_title_text_format)
             worksheet.write(row, 3, 'Invoice Date', cell_title_text_format)
             worksheet.write(row, 4, 'Due Date', cell_title_text_format)
             worksheet.write(row, 5, 'Tax Excluded', cell_title_text_format)
@@ -131,24 +137,38 @@ class CustomerInvoiceWizard(models.TransientModel):
             worksheet.write(row, 8, 'Status', cell_title_text_format)
 
             all_customers_invoice = self.env['account.invoice'].sudo().search(
-                [('date_invoice', '<=', self.date_to), ('date_invoice', '>=', self.date_from)])
+                [('date_invoice', '<=', self.date_to), ('date_invoice', '>=', self.date_from),
+                 ('partner_id.customer', '=', True)])
             customer_invoice = self.env['account.invoice'].sudo().search([('partner_id', '=', self.customer_name),
                                                                           ('date_invoice', '<=', self.date_to),
-                                                                          ('date_invoice', '>=', self.date_from)])
+                                                                          ('date_invoice', '>=', self.date_from),
+                                                                          ('partner_id.customer', '=', True),
+                                                                          ])
+            state_invoice = self.env['account.invoice'].sudo().search([('state', '=', self.state),
+                                                                       ('date_invoice', '<=', self.date_to),
+                                                                       ('date_invoice', '>=', self.date_from),
+                                                                       ('partner_id.customer', '=', True)])
+            customer_and_state_invoice = self.env['account.invoice'].sudo().search([('state', '=', self.state),
+                                                                                    ('partner_id', '=',
+                                                                                     self.customer_name),
+                                                                                    (
+                                                                                        'date_invoice', '<=',
+                                                                                        self.date_to),
+                                                                                    ('date_invoice', '>=',
+                                                                                     self.date_from),
+                                                                                    ('partner_id.customer', '=', True)])
 
-            if customer_invoice:
-                print('invoice')
-            else:
-                for all_invoice in all_customers_invoice:
-                    name = all_invoice.partner_id.name
-                    inv_number = all_invoice.number
-                    sale_person = all_invoice.user_id.name
-                    invoice_date = datetime.strftime(all_invoice.date_invoice, '%d/%m/%Y')
-                    due_date = datetime.strftime(all_invoice.date_due, '%d/%m/%Y')
-                    amount_tax_excluded = all_invoice.amount_untaxed
-                    amount_tax = all_invoice.amount_tax
-                    total = all_invoice.amount_total
-                    status = all_invoice.state
+            if customer_and_state_invoice:
+                for invoice in customer_and_state_invoice:
+                    name = invoice.partner_id.name
+                    inv_number = invoice.number
+                    sale_person = invoice.user_id.name
+                    invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+                    due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+                    amount_tax_excluded = invoice.amount_untaxed
+                    amount_tax = invoice.amount_tax
+                    total = invoice.amount_total
+                    status = invoice.state
 
                     worksheet.write(row + 1, col, name or '', cell_body_text_format)
                     worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
@@ -161,6 +181,109 @@ class CustomerInvoiceWizard(models.TransientModel):
                     worksheet.write(row + 1, col + 8, status or '', cell_body_text_format)
 
                     row = row + 1
+
+                worksheet.set_row(row + 1, 23)
+                worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+                                cell_result_body_number_format)
+
+            elif customer_invoice:
+                for invoice in customer_invoice:
+                    name = invoice.partner_id.name
+                    inv_number = invoice.number
+                    sale_person = invoice.user_id.name
+                    invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+                    due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+                    amount_tax_excluded = invoice.amount_untaxed
+                    amount_tax = invoice.amount_tax
+                    total = invoice.amount_total
+                    status = invoice.state
+
+                    worksheet.write(row + 1, col, name or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 8, status or '', cell_body_text_format)
+
+                    row = row + 1
+
+                worksheet.set_row(row + 1, 23)
+                worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+                                cell_result_body_number_format)
+            elif state_invoice:
+                for invoice in state_invoice:
+                    name = invoice.partner_id.name
+                    inv_number = invoice.number
+                    sale_person = invoice.user_id.name
+                    invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+                    due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+                    amount_tax_excluded = invoice.amount_untaxed
+                    amount_tax = invoice.amount_tax
+                    total = invoice.amount_total
+                    status = invoice.state
+
+                    worksheet.write(row + 1, col, name or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 8, status or '', cell_body_text_format)
+
+                    row = row + 1
+
+                worksheet.set_row(row + 1, 23)
+                worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+                                cell_result_body_number_format)
+
+            else:
+                for invoice in all_customers_invoice:
+                    name = invoice.partner_id.name
+                    inv_number = invoice.number
+                    sale_person = invoice.user_id.name
+                    invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+                    due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+                    amount_tax_excluded = invoice.amount_untaxed
+                    amount_tax = invoice.amount_tax
+                    total = invoice.amount_total
+                    status = invoice.state
+
+                    worksheet.write(row + 1, col, name or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 8, status or '', cell_body_text_format)
+
+                    row = row + 1
+
+                worksheet.set_row(row + 1, 23)
+                worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+                                cell_result_body_number_format)
 
         workbook.close()
         file_download = base64.b64encode(fp.getvalue())
@@ -182,6 +305,510 @@ class CustomerInvoiceWizard(models.TransientModel):
 class CustomerInvoiceReportExcel(models.TransientModel):
     _name = 'customer.invoice.report.excel'
     _description = "customer invoice report excel table"
+
+    name = fields.Char('File Name', size=256, readonly=True)
+    file_download = fields.Binary('Download Invoices', readonly=True)
+
+
+class DebitNoteWizard(models.TransientModel):
+    _name = 'debit.note.report.wizard'
+
+    customer_id = fields.Many2one('res.partner', string='Customer', required=False, domain="[('customer', '=', True)]")
+    customer_name = fields.Integer(string='Customer name', related='customer_id.id')
+    date_from = fields.Date(string='Date From', required=True,
+                            default=lambda self: fields.Date.to_string(date.today().replace(day=1)))
+    date_to = fields.Date(string='Date To', required=True,
+                          default=lambda self: fields.Date.to_string(
+                              (datetime.now() + relativedelta(months=+1, day=1, days=-1)).date()))
+    state = fields.Selection([("draft", "Draft"), ("open", "Open"), ("paid", "Paid")])
+
+    @api.multi
+    def get_report(self):
+        file_name = _('Debit Note ' + str(self.date_from) + ' - ' + str(self.date_to) + ' report.xlsx')
+        fp = BytesIO()
+
+        workbook = xlsxwriter.Workbook(fp)
+        worksheet = workbook.add_worksheet('Debit Note  report')
+        # Disable gridlines
+        worksheet.hide_gridlines(2)  # 2 means 'both'
+
+        heading_company_format = workbook.add_format({
+            # 'bold': True,
+            'font_size': 7,
+            'font_name': 'Arial',
+            # 'align': 'center',
+            'valign': 'vcenter',
+            'text_wrap': True,
+        })
+        heading_company_format.set_border()
+        cell_title_text_format = workbook.add_format({'align': 'center',
+                                                      'bold': True,
+                                                      'font_name': 'Calibri',
+                                                      'size': 12,
+                                                      'fg_color': '#FFCC00',
+                                                      })
+        cell_title_text_format.set_border()
+
+        cell_body_text_format = workbook.add_format({'align': 'center',
+                                                     'font_name': 'Calibri',
+                                                     'size': 11,
+                                                     })
+        cell_body_text_format.set_border()
+        cell_body_number_format = workbook.add_format({'align': 'right',
+                                                       'bold': False,
+                                                       'size': 11,
+                                                       'num_format': '#,###0.00'})
+        cell_body_number_format.set_border()
+
+        cell_result_body_number_format = workbook.add_format({'align': 'right',
+                                                              'bold': True,
+                                                              'size': 13,
+                                                              'fg_color': '#FFCC00',
+                                                              'num_format': '#,###0.00'})
+        cell_result_body_number_format.set_border()
+
+        worksheet.set_row(0, 25)
+
+        worksheet.set_column('A:A', 27)
+        worksheet.set_column('B:B', 16)
+        worksheet.set_column('B:I', 16)
+
+        if self.date_from and self.date_to:
+            row = 0
+            col = 0
+
+            worksheet.write(row, 0, 'Contact Name', cell_title_text_format)
+            worksheet.write(row, 1, 'Invoice Number', cell_title_text_format)
+            worksheet.write(row, 2, 'Operator', cell_title_text_format)
+            worksheet.write(row, 3, 'Invoice Date', cell_title_text_format)
+            worksheet.write(row, 4, 'Due Date', cell_title_text_format)
+            worksheet.write(row, 5, 'Tax Excluded', cell_title_text_format)
+            worksheet.write(row, 6, 'Tax', cell_title_text_format)
+            worksheet.write(row, 7, 'Total', cell_title_text_format)
+            worksheet.write(row, 8, 'Status', cell_title_text_format)
+
+            all_customers_invoice = self.env['account.invoice'].sudo().search(
+                [('date_invoice', '<=', self.date_to), ('date_invoice', '>=', self.date_from),
+                 ('partner_id.customer', '=', True)])
+            customer_invoice = self.env['account.invoice'].sudo().search([('partner_id', '=', self.customer_name),
+                                                                          ('date_invoice', '<=', self.date_to),
+                                                                          ('date_invoice', '>=', self.date_from),
+                                                                          ('partner_id.customer', '=', True),
+                                                                          ])
+            state_invoice = self.env['account.invoice'].sudo().search([('state', '=', self.state),
+                                                                       ('date_invoice', '<=', self.date_to),
+                                                                       ('date_invoice', '>=', self.date_from),
+                                                                       ('partner_id.customer', '=', True)])
+            customer_and_state_invoice = self.env['account.invoice'].sudo().search([('state', '=', self.state),
+                                                                                    ('partner_id', '=',
+                                                                                     self.customer_name),
+                                                                                    (
+                                                                                        'date_invoice', '<=',
+                                                                                        self.date_to),
+                                                                                    ('date_invoice', '>=',
+                                                                                     self.date_from),
+                                                                                    ('partner_id.customer', '=', True)])
+
+            if customer_and_state_invoice:
+                for invoice in customer_and_state_invoice:
+                    if invoice.origin:
+                        name = invoice.partner_id.name
+                        inv_number = invoice.number
+                        sale_person = invoice.user_id.name
+                        invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+                        due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+                        amount_tax_excluded = invoice.amount_untaxed
+                        amount_tax = invoice.amount_tax
+                        total = invoice.amount_total
+                        status = invoice.state
+
+                        worksheet.write(row + 1, col, name or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+                        worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+                        worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+                        worksheet.write(row + 1, col + 8, status or '', cell_body_text_format)
+
+                        row = row + 1
+
+                worksheet.set_row(row + 1, 23)
+                worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+                                cell_result_body_number_format)
+
+            elif customer_invoice:
+                for invoice in customer_invoice:
+                    if invoice.origin:
+                        name = invoice.partner_id.name
+                        inv_number = invoice.number
+                        sale_person = invoice.user_id.name
+                        invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+                        due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+                        amount_tax_excluded = invoice.amount_untaxed
+                        amount_tax = invoice.amount_tax
+                        total = invoice.amount_total
+                        status = invoice.state
+
+                        worksheet.write(row + 1, col, name or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+                        worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+                        worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+                        worksheet.write(row + 1, col + 8, status or '', cell_body_text_format)
+
+                        row = row + 1
+
+                worksheet.set_row(row + 1, 23)
+                worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+                                cell_result_body_number_format)
+            elif state_invoice:
+                for invoice in state_invoice:
+                    if invoice.origin:
+                        name = invoice.partner_id.name
+                        inv_number = invoice.number
+                        sale_person = invoice.user_id.name
+                        invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+                        due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+                        amount_tax_excluded = invoice.amount_untaxed
+                        amount_tax = invoice.amount_tax
+                        total = invoice.amount_total
+                        status = invoice.state
+
+                        worksheet.write(row + 1, col, name or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+                        worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+                        worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+                        worksheet.write(row + 1, col + 8, status or '', cell_body_text_format)
+
+                        row = row + 1
+
+                worksheet.set_row(row + 1, 23)
+                worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+                                cell_result_body_number_format)
+
+            else:
+                for invoice in all_customers_invoice:
+                    if invoice.origin:
+                        name = invoice.partner_id.name
+                        inv_number = invoice.number
+                        sale_person = invoice.user_id.name
+                        invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+                        due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+                        amount_tax_excluded = invoice.amount_untaxed
+                        amount_tax = invoice.amount_tax
+                        total = invoice.amount_total
+                        status = invoice.state
+
+                        worksheet.write(row + 1, col, name or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+                        worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+                        worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+                        worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+                        worksheet.write(row + 1, col + 8, status or '', cell_body_text_format)
+                        row = row + 1
+
+                worksheet.set_row(row + 1, 23)
+                worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+                                cell_result_body_number_format)
+
+        workbook.close()
+        file_download = base64.b64encode(fp.getvalue())
+        fp.close()
+
+        self = self.with_context(default_name=file_name, default_file_download=file_download)
+
+        return {
+            'name': 'Debit Note Report Download',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'debit.note.report.excel',
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+            'context': self._context,
+        }
+
+
+class DebitNoteReportExcel(models.TransientModel):
+    _name = 'debit.note.report.excel'
+    _description = "Debit Note report excel table"
+
+    name = fields.Char('File Name', size=256, readonly=True)
+    file_download = fields.Binary('Download Invoices', readonly=True)
+
+
+class SupplierBillsWizard(models.TransientModel):
+    _name = 'supplier.bills.report.wizard'
+
+    supplier_id = fields.Many2one('res.partner', string='Supplier', required=False, domain="[('supplier', '=', True)]")
+    supplier_name = fields.Integer(string='Supplier name', related='supplier_id.id')
+    date_from = fields.Date(string='Date From', required=True,
+                            default=lambda self: fields.Date.to_string(date.today().replace(day=1)))
+    date_to = fields.Date(string='Date To', required=True,
+                          default=lambda self: fields.Date.to_string(
+                              (datetime.now() + relativedelta(months=+1, day=1, days=-1)).date()))
+    state = fields.Selection([("draft", "Draft"), ("open", "Open"), ("paid", "Paid")])
+
+    @api.multi
+    def get_report(self):
+        file_name = _('Supplier bills ' + str(self.date_from) + ' - ' + str(self.date_to) + ' report.xlsx')
+        fp = BytesIO()
+
+        workbook = xlsxwriter.Workbook(fp)
+        worksheet = workbook.add_worksheet('Supplier bills report')
+        # Disable gridlines
+        worksheet.hide_gridlines(2)  # 2 means 'both'
+
+        heading_company_format = workbook.add_format({
+            # 'bold': True,
+            'font_size': 7,
+            'font_name': 'Arial',
+            # 'align': 'center',
+            'valign': 'vcenter',
+            'text_wrap': True,
+        })
+        heading_company_format.set_border()
+        cell_title_text_format = workbook.add_format({'align': 'center',
+                                                      'bold': True,
+                                                      'font_name': 'Calibri',
+                                                      'size': 12,
+                                                      'fg_color': '#FFCC00',
+                                                      })
+        cell_title_text_format.set_border()
+
+        cell_body_text_format = workbook.add_format({'align': 'center',
+                                                     'font_name': 'Calibri',
+                                                     'size': 11,
+                                                     })
+        cell_body_text_format.set_border()
+        cell_body_number_format = workbook.add_format({'align': 'right',
+                                                       'bold': False,
+                                                       'size': 11,
+                                                       'num_format': '#,###0.00'})
+        cell_body_number_format.set_border()
+
+        cell_result_body_number_format = workbook.add_format({'align': 'right',
+                                                              'bold': True,
+                                                              'size': 13,
+                                                              'fg_color': '#FFCC00',
+                                                              'num_format': '#,###0.00'})
+        cell_result_body_number_format.set_border()
+
+        worksheet.set_row(0, 25)
+
+        worksheet.set_column('A:A', 27)
+        worksheet.set_column('B:B', 16)
+        worksheet.set_column('B:I', 16)
+
+        if self.date_from and self.date_to:
+            row = 0
+            col = 0
+
+            worksheet.write(row, 0, 'Contact Name', cell_title_text_format)
+            worksheet.write(row, 1, 'Bill number', cell_title_text_format)
+            worksheet.write(row, 2, 'Operator', cell_title_text_format)
+            worksheet.write(row, 3, 'Bill Date', cell_title_text_format)
+            worksheet.write(row, 4, 'Due Date', cell_title_text_format)
+            worksheet.write(row, 5, 'Tax Excluded', cell_title_text_format)
+            worksheet.write(row, 6, 'Tax', cell_title_text_format)
+            worksheet.write(row, 7, 'Total', cell_title_text_format)
+            worksheet.write(row, 8, 'Status', cell_title_text_format)
+
+            all_customers_invoice = self.env['account.invoice'].sudo().search(
+                [('date_invoice', '<=', self.date_to), ('date_invoice', '>=', self.date_from),
+                 ('partner_id.supplier', '=', True)])
+            supplier_bills = self.env['account.invoice'].sudo().search([('partner_id', '=', self.supplier_name),
+                                                                        ('date_invoice', '<=', self.date_to),
+                                                                        ('date_invoice', '>=', self.date_from),
+                                                                        ('partner_id.supplier', '=', True)])
+            state_bills = self.env['account.invoice'].sudo().search([('state', '=', self.state),
+                                                                     ('date_invoice', '<=', self.date_to),
+                                                                     ('date_invoice', '>=', self.date_from),
+                                                                     ('partner_id.supplier', '=', True)])
+            supplier_and_state_bill = self.env['account.invoice'].sudo().search([('state', '=', self.state),
+                                                                                 ('partner_id', '=',
+                                                                                  self.supplier_name),
+                                                                                 (
+                                                                                     'date_invoice', '<=',
+                                                                                     self.date_to),
+                                                                                 ('date_invoice', '>=',
+                                                                                  self.date_from),
+                                                                                 ('partner_id.supplier', '=', True)])
+
+            if supplier_and_state_bill:
+                for invoice in supplier_and_state_bill:
+                    name = invoice.partner_id.name
+                    inv_number = invoice.number
+                    sale_person = invoice.user_id.name
+                    invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+                    due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+                    amount_tax_excluded = invoice.amount_untaxed
+                    amount_tax = invoice.amount_tax
+                    total = invoice.amount_total
+                    status = invoice.state
+
+                    worksheet.write(row + 1, col, name or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 8, status or '', cell_body_text_format)
+
+                    row = row + 1
+
+                worksheet.set_row(row + 1, 23)
+                worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+                                cell_result_body_number_format)
+
+            elif supplier_bills:
+                for invoice in supplier_bills:
+                    name = invoice.partner_id.name
+                    inv_number = invoice.number
+                    sale_person = invoice.user_id.name
+                    invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+                    due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+                    amount_tax_excluded = invoice.amount_untaxed
+                    amount_tax = invoice.amount_tax
+                    total = invoice.amount_total
+                    status = invoice.state
+
+                    worksheet.write(row + 1, col, name or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 8, status or '', cell_body_text_format)
+
+                    row = row + 1
+
+                worksheet.set_row(row + 1, 23)
+                worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+                                cell_result_body_number_format)
+            elif state_bills:
+                for invoice in state_bills:
+                    name = invoice.partner_id.name
+                    inv_number = invoice.number
+                    sale_person = invoice.user_id.name
+                    invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+                    due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+                    amount_tax_excluded = invoice.amount_untaxed
+                    amount_tax = invoice.amount_tax
+                    total = invoice.amount_total
+                    status = invoice.state
+
+                    worksheet.write(row + 1, col, name or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 8, status or '', cell_body_text_format)
+
+                    row = row + 1
+
+                worksheet.set_row(row + 1, 23)
+                worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+                                cell_result_body_number_format)
+
+            else:
+                for invoice in all_customers_invoice:
+                    name = invoice.partner_id.name
+                    inv_number = invoice.number
+                    sale_person = invoice.user_id.name
+                    invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+                    due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+                    amount_tax_excluded = invoice.amount_untaxed
+                    amount_tax = invoice.amount_tax
+                    total = invoice.amount_total
+                    status = invoice.state
+
+                    worksheet.write(row + 1, col, name or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+                    worksheet.write(row + 1, col + 8, status or '', cell_body_text_format)
+
+                    row = row + 1
+
+                worksheet.set_row(row + 1, 23)
+                worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+                                cell_result_body_number_format)
+                worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+                                cell_result_body_number_format)
+
+        workbook.close()
+        file_download = base64.b64encode(fp.getvalue())
+        fp.close()
+
+        self = self.with_context(default_name=file_name, default_file_download=file_download)
+
+        return {
+            'name': 'Invoice Report Download',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'customer.invoice.report.excel',
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+            'context': self._context,
+        }
+
+
+class SupplierBillReportExcel(models.TransientModel):
+    _name = 'supplier.bill.report.excel'
+    _description = "supplier bill report excel table"
 
     name = fields.Char('File Name', size=256, readonly=True)
     file_download = fields.Binary('Download Invoices', readonly=True)

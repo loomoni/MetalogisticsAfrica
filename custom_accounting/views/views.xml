@@ -23,6 +23,93 @@
             </field>
         </record>
 
+        <!--  Supplier bill reports -->
+        <record model="ir.ui.view" id="supplier_bill_report_wizard">
+            <field name="name">Customer Invoice Report</field>
+            <field name="model">supplier.bills.report.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Supplier bill Report">
+                    <group>
+                        <field name="supplier_id"
+                               options="{'no_create_edit': True, 'no_create': True, 'no_open': True}"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="date_from"/>
+                        </group>
+                        <group>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="state"/>
+                    </group>
+                    <footer>
+                        <button name="get_report" string="Get Report" type="object" class="oe_highlight"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_bill_report_wizard_excel">
+            <field name="name">view.supplier.bill.report.excel</field>
+            <field name="model">supplier.bill.report.excel</field>
+            <field name="arch" type="xml">
+                <form string="Download Customer Invoices Report Here">
+                    <field name="name" invisible="1"/>
+                    <field name="file_download" widget="download_link" filename="name"/>
+                </form>
+            </field>
+        </record>
+
+        <!-- End of supplier excel print report -->
+
+        <!--  Debit Note reports -->
+        <record model="ir.ui.view" id="debit_note_report_wizard">
+            <field name="name">Debit Note Report</field>
+            <field name="model">debit.note.report.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Debit Note Report">
+                    <group>
+                        <field name="customer_id"
+                               options="{'no_create_edit': True, 'no_create': True, 'no_open': True}"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="date_from"/>
+                        </group>
+                        <group>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="state"/>
+                    </group>
+                    <footer>
+                        <button name="get_report" string="Get Report" type="object" class="oe_highlight"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="debit_note_report_wizard_excel">
+            <field name="name">view.debit.note.report.excel</field>
+            <field name="model">debit.note.report.excel</field>
+            <field name="arch" type="xml">
+                <form string="Download Debit Note Report Here">
+                    <field name="name" invisible="1"/>
+                    <field name="file_download" widget="download_link" filename="name"/>
+                </form>
+            </field>
+        </record>
+
+        <!-- End of debit note print report -->
+
+
         <!--    Printing Customer Invoice -->
         <record model="ir.ui.view" id="customer_invoice_report_wizard">
             <field name="name">Customer Invoice Report</field>
@@ -71,6 +158,18 @@
                     view_mode="form"
                     target="new"/>
 
+        <act_window id="action_supplier_bills_report"
+                    name="Customer Invoice Report"
+                    res_model="supplier.bills.report.wizard"
+                    view_mode="form"
+                    target="new"/>
+
+        <act_window id="action_debit_note_report"
+                    name="Debit Note Report"
+                    res_model="debit.note.report.wizard"
+                    view_mode="form"
+                    target="new"/>
+
 
         <menuitem
                 id="excel_reports_id"
@@ -85,6 +184,22 @@
                 action="action_customer_invoice_report"
                 parent="excel_reports_id"
                 sequence="1"
+                groups="account.group_account_manager"/>
+
+        <menuitem
+                id="bill_excel_reports_id"
+                name="Vendor bills"
+                action="action_supplier_bills_report"
+                parent="excel_reports_id"
+                sequence="2"
+                groups="account.group_account_manager"/>
+
+        <menuitem
+                id="debit_note_excel_reports_id"
+                name="Debit Note"
+                action="action_debit_note_report"
+                parent="excel_reports_id"
+                sequence="3"
                 groups="account.group_account_manager"/>
     </data>
 </odoo>
