@@ -23,9 +23,7 @@
                         <table style="width:95%; margin-left: 45px; font-family: Arial, sans-serif; font-size: 12pt;"
                                class="table table-condensed">
                             <tr style="margin-bottom: 20px">
-
                             </tr>
-
                             <tr></tr>
                             <tr>
                                 <td style="font-size: 25px">
@@ -50,13 +48,13 @@
                                 </td>
                                 <td style="text-align: right;">
                                     <span>Metalogistics Africa Limited</span>
+<!--                                    <span t-field="company_info().name"/>-->
                                 </td>
                             </tr>
                             <tr>
                                 <td></td>
                                 <td style="text-align: left">
                                     <span t-esc="o.date_invoice.strftime('%d %b %Y')"/>
-                                    <!--                                    <span>17 Aug 2023</span>-->
                                 </td>
                                 <td style="text-align: right;">
                                     <span>Attention: Country Manager</span>
@@ -84,6 +82,7 @@
                             </tr>
                             <tr>
                                 <td>
+                                    <span>Attention: </span>
                                     <span t-field="o.partner_id.name"/>
                                 </td>
                                 <td style="text-align: left">
