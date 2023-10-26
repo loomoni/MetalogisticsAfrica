@@ -48,7 +48,7 @@
                                 </td>
                                 <td style="text-align: right;">
                                     <span>Metalogistics Africa Limited</span>
-<!--                                    <span t-field="company_info().name"/>-->
+                                    <!--                                    <span t-field="company_info().name"/>-->
                                 </td>
                             </tr>
                             <tr>
@@ -82,11 +82,16 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <span>Attention: </span>
+                                    <span>Attention:</span>
                                     <span t-field="o.partner_id.name"/>
                                 </td>
                                 <td style="text-align: left">
-                                    <span t-field="o.number"/>
+                                    <div t-if="o.origin">
+                                        <span t-field="o.debt_number"/>
+                                    </div>
+                                    <div t-else="">
+                                        <span t-field="o.number"/>
+                                    </div>
                                 </td>
                                 <td style="text-align: right">
                                     <span>TEMEKE DAR ES SALAAM</span>
@@ -159,7 +164,10 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <span>TIN: 108-926-023 VRN: 40010354C</span>
+                                    <span>TIN:</span>
+                                    <span t-field="o.partner_id.vat"/>
+                                    <span>VRN:</span>
+                                    <span t-field="o.partner_id.vrn"/>
                                 </td>
                                 <td></td>
                                 <td></td>
@@ -187,46 +195,46 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <t t-set="odd_even" t-value="0"/>
+                                <!--                                <t t-set="odd_even" t-value="0"/>-->
                                 <t t-foreach="o.invoice_line_ids" t-as="line">
-                                    <t t-set="odd_even" t-value="1 - odd_even"/>
+                                    <!--                                    <t t-set="odd_even" t-value="1 - odd_even"/>-->
                                     <tr>
 
-                                        <t t-if="odd_even == 1">
-                                            <td style="border-right: 1px solid #000; padding: 8px; text-align: left; background-color: #ffffff;">
+                                        <!--                                        <t t-if="odd_even == 1">-->
+                                        <td style="border-right: 1px solid #000; padding: 8px; text-align: left; background-color: #ffffff;">
 
-                                                <span t-field="line.product_id.name"/>
-                                            </td>
-                                            <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color: #ffffff;">
-                                                <span t-esc="line.quantity"/>
-                                            </td>
-                                            <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color: #ffffff;">
-                                                <span t-field="line.price_unit"/>
-                                            </td>
-                                            <td style="border-right: 1px solid #000;padding: 8px; text-align: right; background-color:  #f2f2f2;">
-                                                <span t-field="line.price_unit"/>
-                                            </td>
-                                            <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color: #ffffff;">
-                                                <span t-field="line.price_total"/>
-                                            </td>
-                                        </t>
-                                        <t t-if="odd_even == 0">
-                                            <td style="border-right: 1px solid #000; padding: 8px; text-align: left; background-color: #f2f2f2;">
-                                                <span t-field="line.product_id.name"/>
-                                            </td>
-                                            <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color:  #f2f2f2;">
-                                                <span t-esc="line.quantity"/>
-                                            </td>
-                                            <td style="border-right: 1px solid #000;padding: 8px; text-align: right; background-color:  #f2f2f2;">
-                                                <span t-field="line.price_unit"/>
-                                            </td>
-                                            <td style="border-right: 1px solid #000;padding: 8px; text-align: right; background-color:  #f2f2f2;">
-                                                <span t-field="line.price_unit"/>
-                                            </td>
-                                            <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color:  #f2f2f2;">
-                                                <span t-field="line.price_total"/>
-                                            </td>
-                                        </t>
+                                            <span t-field="line.product_id.name"/>
+                                        </td>
+                                        <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color: #ffffff;">
+                                            <span t-esc="line.quantity"/>
+                                        </td>
+                                        <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color: #ffffff;">
+                                            <span t-field="line.price_unit"/>
+                                        </td>
+                                        <td style="border-right: 1px solid #000;padding: 8px; text-align: right; background-color:  #ffffff;">
+                                            <span t-field="line.invoice_line_tax_ids.name"/>
+                                        </td>
+                                        <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color: #ffffff;">
+                                            <span t-field="line.price_total"/>
+                                        </td>
+                                        <!--                                        </t>-->
+                                        <!--                                        <t t-if="odd_even == 0">-->
+                                        <!--                                            <td style="border-right: 1px solid #000; padding: 8px; text-align: left; background-color: #f2f2f2;">-->
+                                        <!--                                                <span t-field="line.product_id.name"/>-->
+                                        <!--                                            </td>-->
+                                        <!--                                            <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color:  #f2f2f2;">-->
+                                        <!--                                                <span t-esc="line.quantity"/>-->
+                                        <!--                                            </td>-->
+                                        <!--                                            <td style="border-right: 1px solid #000;padding: 8px; text-align: right; background-color:  #f2f2f2;">-->
+                                        <!--                                                <span t-field="line.price_unit"/>-->
+                                        <!--                                            </td>-->
+                                        <!--                                            <td style="border-right: 1px solid #000;padding: 8px; text-align: right; background-color:  #f2f2f2;">-->
+                                        <!--                                                <span t-field="line.price_unit"/>-->
+                                        <!--                                            </td>-->
+                                        <!--                                            <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color:  #f2f2f2;">-->
+                                        <!--                                                <span t-field="line.price_total"/>-->
+                                        <!--                                            </td>-->
+                                        <!--                                        </t>-->
                                     </tr>
                                 </t>
 
@@ -240,10 +248,10 @@
                                 </td>
                                 <td style="width: 8%; padding: 8px; text-align: left; background-color: #ffffff;">
                                 </td>
-                                <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; width: 16%; padding: 8px; text-align: right; background-color: #f2f2f2;">
+                                <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; width: 16%; padding: 8px; text-align: right; background-color: #ffffff;">
                                     Subtotal
                                 </td>
-                                <td style="border-top: 1px solid #000; border-right: 1px solid #000; width: 18%; padding: 8px; text-align: right; background-color: #f2f2f2;">
+                                <td style="border-top: 1px solid #000; border-right: 1px solid #000; width: 18%; padding: 8px; text-align: right; background-color: #ffffff;">
                                     <span t-field="o.amount_untaxed"/>
                                 </td>
                             </tr>
@@ -254,10 +262,10 @@
                                 </td>
                                 <td style="width: 8%; padding: 8px; text-align: left; background-color: #ffffff;">
                                 </td>
-                                <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; width: 16%; padding: 8px; text-align: right; background-color: #f2f2f2;">
+                                <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; width: 16%; padding: 8px; text-align: right; background-color: #ffffff;">
                                     VAT 18%
                                 </td>
-                                <td style="border-top: 1px solid #000; border-right: 1px solid #000; width: 18%; padding: 8px; text-align: right; background-color: #f2f2f2;">
+                                <td style="border-top: 1px solid #000; border-right: 1px solid #000; width: 18%; padding: 8px; text-align: right; background-color: #ffffff;">
                                     <span t-field="o.amount_tax"/>
                                 </td>
                             </tr>
@@ -268,10 +276,10 @@
                                 </td>
                                 <td style="width: 8%; padding: 8px; text-align: left; background-color: #ffffff;">
                                 </td>
-                                <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px solid #000; width: 16%; padding: 8px; text-align: right; background-color: #c2c0c0;">
+                                <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px solid #000; width: 16%; padding: 8px; text-align: right; background-color: #f2f2f2;">
                                     <strong>Invoice Total</strong>
                                 </td>
-                                <td style="width: 18%; padding: 8px; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px solid #000; text-align: right; background-color: #c2c0c0;">
+                                <td style="width: 18%; padding: 8px; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px solid #000; text-align: right; background-color: #f2f2f2;">
                                     <strong>
                                         <span t-field="o.amount_total"/>
                                     </strong>
@@ -288,7 +296,7 @@
                                     <td style="width: 8%; padding: 8px; text-align: left; background-color: #ffffff;">
 
                                     </td>
-                                    <td style="font-size: 15px; border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px solid #000; width: 18%; padding: 8px; text-align: right; background-color: #f2f2f2;">
+                                    <td style="font-size: 15px; border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px solid #000; width: 18%; padding: 8px; text-align: right; background-color: #ffffff;">
                                         <t t-foreach="o.get_payment_dates()" t-as="payment_date">
                                             <div style="font-style: italic; text-align: right;">
                                                 <p>Paid on
@@ -297,7 +305,7 @@
                                             </div>
                                         </t>
                                     </td>
-                                    <td style="font-size: 15px; width: 18%; padding: 8px; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px solid #000; text-align: right; background-color: #f2f2f2;">
+                                    <td style="font-size: 15px; width: 18%; padding: 8px; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px solid #000; text-align: right; background-color: #ffffff;">
                                         <t t-foreach="o.get_payment_amount()" t-as="payment_amount">
                                             <div style="text-align: right;">
                                                 <p>
@@ -317,10 +325,10 @@
                                     <td style="width: 8%; padding: 8px; text-align: left; background-color: #ffffff;">
 
                                     </td>
-                                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px solid #000; width: 16%; padding: 8px; text-align: right; background-color: #c2c0c0;">
+                                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px solid #000; width: 16%; padding: 8px; text-align: right; background-color: #f2f2f2;">
                                         <strong>Amount Due</strong>
                                     </td>
-                                    <td style="width: 18%; padding: 8px; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px solid #000; text-align: right; background-color: #c2c0c0;">
+                                    <td style="width: 18%; padding: 8px; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px solid #000; text-align: right; background-color: #f2f2f2;">
                                         <strong>
                                             <span t-field="o.residual"/>
                                         </strong>

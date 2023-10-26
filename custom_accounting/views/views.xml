@@ -1,6 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <data>
+        <!-- Inherit customer view form view -->
+        <record id="view_res_partner_form_inherit_id" model="ir.ui.view">
+            <field name="name">res.partner.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='vat']" position="after">
+                    <field name="vrn"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Inherit customer invoice tree view -->
+        <!--        <record id="view_customer_invoice_inherit" model="ir.ui.view">-->
+        <!--            <field name="name">account.invoice.inherit_view</field>-->
+        <!--            <field name="model">account.invoice</field>-->
+        <!--            <field name="inherit_id" ref="account.invoice_tree_with_onboarding"/>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                <tree>-->
+        <!--                    <field name="origin" invisible="1"/>-->
+        <!--                    <field name="debt_number"/>-->
+        <!--                    <field name="number" t-if="not origin"/>-->
+        <!--                </tree>-->
+        <!--            </field>-->
+        <!--        </record>-->
+
         <!-- Inherit Form View to Modify it -->
         <record id="invoice_inherit_id" model="ir.ui.view">
             <field name="name">invoice.inherit.id</field>
@@ -18,6 +44,7 @@
                 <xpath expr="//field[@name='date_due']" position="after">
                     <field name="pkg_no"/>
                     <field name="weight"/>
+                    <field name="delivery_no"/>
                 </xpath>
 
             </field>
@@ -151,6 +178,55 @@
             </field>
         </record>
 
+        <!-- End customer invoice report-->
+
+        <!-- Total customer income report -->
+        <record model="ir.ui.view" id="total_income_report_wizard">
+            <field name="name">Total Income Report</field>
+            <field name="model">total.income.report.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Income Report">
+                    <group>
+                        <field name="customer_id"
+                               options="{'no_create_edit': True, 'no_create': True, 'no_open': True}"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="date_from"/>
+                        </group>
+                        <group>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="state"/>
+                    </group>
+                    <footer>
+                        <button name="get_report" string="Get Report" type="object" class="oe_highlight"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_income_report_wizard_excel">
+            <field name="name">view.total.income.report.excel</field>
+            <field name="model">total.income.report.excel</field>
+            <field name="arch" type="xml">
+                <form string="Download Income Invoices Report Here">
+                    <field name="name" invisible="1"/>
+                    <field name="file_download" widget="download_link" filename="name"/>
+                </form>
+            </field>
+        </record>
+        <!-- End of Total customer income report -->
+
+        <act_window id="action_total_income_report"
+                    name="Total Income"
+                    res_model="total.income.report.wizard"
+                    view_mode="form"
+                    target="new"/>
 
         <act_window id="action_customer_invoice_report"
                     name="Customer Invoice Report"
@@ -176,6 +252,14 @@
                 name="Excel Reports"
                 parent="account.menu_finance"
                 sequence="21"
+                groups="account.group_account_manager,account.group_account_invoice"/>
+
+        <menuitem
+                id="customer_income_reports_id"
+                name="Total Income"
+                action="action_total_income_report"
+                parent="excel_reports_id"
+                sequence="1"
                 groups="account.group_account_manager"/>
 
         <menuitem
@@ -183,23 +267,23 @@
                 name="Customers Invoice"
                 action="action_customer_invoice_report"
                 parent="excel_reports_id"
-                sequence="1"
-                groups="account.group_account_manager"/>
+                sequence="2"
+                groups="account.group_account_manager,account.group_account_invoice"/>
 
         <menuitem
                 id="bill_excel_reports_id"
                 name="Vendor bills"
                 action="action_supplier_bills_report"
                 parent="excel_reports_id"
-                sequence="2"
-                groups="account.group_account_manager"/>
+                sequence="3"
+                groups="account.group_account_manager,account.group_account_invoice"/>
 
         <menuitem
                 id="debit_note_excel_reports_id"
                 name="Debit Note"
                 action="action_debit_note_report"
                 parent="excel_reports_id"
-                sequence="3"
-                groups="account.group_account_manager"/>
+                sequence="4"
+                groups="account.group_account_manager,account.group_account_invoice"/>
     </data>
 </odoo>
