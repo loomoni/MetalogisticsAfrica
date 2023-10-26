@@ -14,6 +14,7 @@ from odoo.tools import datetime
 
 class AccountInvoiceInherit(models.Model):
     _inherit = 'account.invoice'
+    _order = 'date_invoice DESC'
 
     file_no = fields.Char(string="File Number")
     awb_bl = fields.Char(string="AWB/BL")
