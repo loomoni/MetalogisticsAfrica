@@ -22,7 +22,9 @@ class AccountInvoiceInherit(models.Model):
     weight = fields.Char(string="weight")
     delivery_no = fields.Char(string="Delivery Note No.")
     debt_number = fields.Char(string="Number", compute="debt_compute", store=True)
+    number = fields.Char(string="Number", store=True)
 
+    @api.onchange('number', 'origin')
     @api.depends('number', 'origin')
     def debt_compute(self):
         for record in self:
@@ -35,7 +37,35 @@ class AccountInvoiceInherit(models.Model):
                 record.number = record.debt_number
             else:
                 record.debt_number = False
-                record.number = False
+                # record.number = False
+
+
+    @api.multi
+    def action_invoice_open(self):
+        res = super(AccountInvoiceInherit, self).action_invoice_open()
+
+        # Continue with your custom code after the super call
+        for invoice in self:
+            if invoice.origin:
+                invoice.number = invoice.debt_number
+            else:
+                invoice.number = invoice.move_id.name
+        return res
+
+    # @api.model
+    # def create(self, vals):
+    #     if vals.get('type') == 'out_invoice' and 'origin' in vals:
+    #         # Check if the 'origin' field is present and the type is 'out_invoice' (invoice)
+    #         debt_number = vals.get('debt_number')  # Get the 'debit_number' value
+    #         if debt_number and debt_number.strip():  # Check if it's not empty
+    #             vals['number'] = debt_number  # Use 'debit_number' as the invoice number
+    #         else:
+    #             # # Use the default sequence if 'debit_number' is empty
+    #             # sequence = self.env['ir.sequence'].next_by_code('INV Sequence')
+    #             # vals['number'] = sequence
+    #             vals['number'] = 4
+    #
+    #     return super(AccountInvoiceInherit, self).create(vals)
 
     @api.model
     def company_info(self):
@@ -113,11 +143,11 @@ class TotalIncomeWizard(models.TransientModel):
         })
         heading_company_format.set_border()
         cell_title_text_format_contact = workbook.add_format({'align': 'left',
-                                                      'bold': True,
-                                                      'font_name': 'Calibri',
-                                                      'size': 12,
-                                                      'fg_color': '#FFCC00',
-                                                      })
+                                                              'bold': True,
+                                                              'font_name': 'Calibri',
+                                                              'size': 12,
+                                                              'fg_color': '#FFCC00',
+                                                              })
         cell_title_text_format_contact.set_border()
         cell_title_text_format = workbook.add_format({'align': 'center',
                                                       'bold': True,
@@ -133,9 +163,9 @@ class TotalIncomeWizard(models.TransientModel):
                                                      })
         cell_body_text_format.set_border()
         cell_body_text_format_contact = workbook.add_format({'align': 'left',
-                                                     'font_name': 'Calibri',
-                                                     'size': 11,
-                                                     })
+                                                             'font_name': 'Calibri',
+                                                             'size': 11,
+                                                             })
         cell_body_text_format_contact.set_border()
         cell_body_number_format = workbook.add_format({'align': 'right',
                                                        'bold': False,
@@ -693,9 +723,9 @@ class DebitNoteWizard(models.TransientModel):
         cell_title_text_format.set_border()
 
         cell_body_text_format_contact = workbook.add_format({'align': 'left',
-                                                     'font_name': 'Calibri',
-                                                     'size': 11,
-                                                     })
+                                                             'font_name': 'Calibri',
+                                                             'size': 11,
+                                                             })
         cell_body_text_format_contact.set_border()
         cell_body_text_format = workbook.add_format({'align': 'center',
                                                      'font_name': 'Calibri',

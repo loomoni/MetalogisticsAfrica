@@ -13,6 +13,33 @@
             </field>
         </record>
 
+        <!--        <record id="view_customer_invoice_inherit" model="ir.ui.view">-->
+        <!--            <field name="name">account.invoice.inherit</field>-->
+        <!--            <field name="model">account.invoice</field>-->
+        <!--            <field name="inherit_id" ref="account.invoice_tree"/>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                    &lt;!&ndash; Use the t-if and t-else attributes to conditionally display fields &ndash;&gt;-->
+        <!--                    <xpath expr="//field[@name='number']" position="attributes">-->
+        <!--&lt;!&ndash;                        <field name="debt_number" t-if="origin"/>&ndash;&gt;-->
+        <!--                        <attribute name="invisible">0</attribute>-->
+        <!--&lt;!&ndash;                        <field name="number" t-else="origin"/>&ndash;&gt;-->
+        <!--                    </xpath>-->
+        <!--                    &lt;!&ndash; Add other fields you want to display &ndash;&gt;-->
+        <!--            </field>-->
+        <!--        </record>-->
+
+        <record id="view_customer_invoice_inherit" model="ir.ui.view">
+            <field name="name">account.invoice.inherit</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='number']" position="attributes">
+                    <attribute name="invisible">context.get('origin') or False</attribute>
+                </xpath>
+            </field>
+        </record>
+
+
         <!-- Inherit customer invoice tree view -->
         <!--        <record id="view_customer_invoice_inherit" model="ir.ui.view">-->
         <!--            <field name="name">account.invoice.inherit_view</field>-->
