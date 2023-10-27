@@ -402,7 +402,7 @@
                             <span
                                     t-field="o.weight"/>KGS|D/N
                             No:
-                            <span t-field="o.number"/>
+                            <span t-field="o.delivery_no"/>
                         </span>
                     </div>
                 </div>

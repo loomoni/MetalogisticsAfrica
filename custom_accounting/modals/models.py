@@ -40,7 +40,6 @@ class AccountInvoiceInherit(models.Model):
                 record.debt_number = False
                 # record.number = False
 
-
     @api.multi
     def action_invoice_open(self):
         res = super(AccountInvoiceInherit, self).action_invoice_open()
