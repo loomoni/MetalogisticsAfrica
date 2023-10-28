@@ -167,7 +167,7 @@
                                     <span>TIN:</span>
                                     <span t-field="o.partner_id.vat"/>
                                     <span>VRN:</span>
-                                    <span t-field="o.partner_id.vrn"/>
+<!--                                    <span t-field="o.partner_id.vrn"/>-->
                                 </td>
                                 <td></td>
                                 <td></td>
