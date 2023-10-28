@@ -249,9 +249,57 @@
         </record>
         <!-- End of Total customer income report -->
 
+        <!-- Total expense report -->
+        <record model="ir.ui.view" id="expenses_report_wizard">
+            <field name="name">Expenses Report</field>
+            <field name="model">expense.report.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Expenses Report">
+                    <group>
+                        <field name="customer_id"
+                               options="{'no_create_edit': True, 'no_create': True, 'no_open': True}"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="date_from"/>
+                        </group>
+                        <group>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="state"/>
+                    </group>
+                    <footer>
+                        <button name="get_report" string="Get Report" type="object" class="oe_highlight"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_expenses_report_wizard_excel">
+            <field name="name">view.expenses.report.excel</field>
+            <field name="model">expenses.report.excel</field>
+            <field name="arch" type="xml">
+                <form string="Download Expenses Report Here">
+                    <field name="name" invisible="1"/>
+                    <field name="file_download" widget="download_link" filename="name"/>
+                </form>
+            </field>
+        </record>
+        <!-- End of Total expenses report -->
+
         <act_window id="action_total_income_report"
                     name="Total Income"
                     res_model="total.income.report.wizard"
+                    view_mode="form"
+                    target="new"/>
+
+        <act_window id="action_expenses_report"
+                    name="Expenses"
+                    res_model="expense.report.wizard"
                     view_mode="form"
                     target="new"/>
 
@@ -273,7 +321,6 @@
                     view_mode="form"
                     target="new"/>
 
-
         <menuitem
                 id="excel_reports_id"
                 name="Excel Reports"
@@ -290,11 +337,19 @@
                 groups="account.group_account_manager"/>
 
         <menuitem
+                id="expenses_reports_id"
+                name="Expense"
+                action="action_expenses_report"
+                parent="excel_reports_id"
+                sequence="2"
+                groups="account.group_account_manager"/>
+
+        <menuitem
                 id="invoice_excel_reports_id"
                 name="Customers Invoice"
                 action="action_customer_invoice_report"
                 parent="excel_reports_id"
-                sequence="2"
+                sequence="3"
                 groups="account.group_account_manager,account.group_account_invoice"/>
 
         <menuitem
@@ -302,7 +357,7 @@
                 name="Vendor bills"
                 action="action_supplier_bills_report"
                 parent="excel_reports_id"
-                sequence="3"
+                sequence="4"
                 groups="account.group_account_manager,account.group_account_invoice"/>
 
         <menuitem
@@ -310,7 +365,7 @@
                 name="Debit Note"
                 action="action_debit_note_report"
                 parent="excel_reports_id"
-                sequence="4"
+                sequence="5"
                 groups="account.group_account_manager,account.group_account_invoice"/>
     </data>
 </odoo>

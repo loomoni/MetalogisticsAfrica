@@ -427,6 +427,385 @@ class TotalIncomeReportExcel(models.TransientModel):
     file_download = fields.Binary('Download Invoices', readonly=True)
 
 
+class ExpensesReportWizard(models.TransientModel):
+    _name = 'expense.report.wizard'
+
+    customer_id = fields.Many2one('hr.employee', string='Employee', required=False)
+    customer_name = fields.Integer(string='Employee name', related='customer_id.id')
+    date_from = fields.Date(string='Date From', required=True,
+                            default=lambda self: fields.Date.to_string(date.today().replace(day=1)))
+    date_to = fields.Date(string='Date To', required=True,
+                          default=lambda self: fields.Date.to_string(
+                              (datetime.now() + relativedelta(months=+1, day=1, days=-1)).date()))
+    state = fields.Selection([("draft", "Draft"), ("open", "Open"), ("paid", "Paid")])
+
+    @api.multi
+    def get_report(self):
+        file_name = _('Expenses Report From ' + str(self.date_from) + ' - ' + str(self.date_to) + ' report.xlsx')
+        fp = BytesIO()
+
+        workbook = xlsxwriter.Workbook(fp)
+        worksheet = workbook.add_worksheet('Expenses report')
+        # Disable gridlines
+        worksheet.hide_gridlines(2)  # 2 means 'both'
+
+        heading_company_format = workbook.add_format({
+            # 'bold': True,
+            'font_size': 7,
+            'font_name': 'Arial',
+            # 'align': 'center',
+            'valign': 'vcenter',
+            'text_wrap': True,
+        })
+        heading_company_format.set_border()
+        cell_title_text_format_contact = workbook.add_format({'align': 'left',
+                                                              'bold': True,
+                                                              'font_name': 'Calibri',
+                                                              'size': 12,
+                                                              'fg_color': '#FFCC00',
+                                                              })
+        cell_title_text_format_contact.set_border()
+        cell_title_text_format_main = workbook.add_format({'align': 'center',
+                                                           'bold': True,
+                                                           'font_name': 'Calibri',
+                                                           'size': 12,
+                                                           'fg_color': '#FFCC00',
+                                                           })
+        cell_title_text_format_main.set_border()
+        cell_title_text_format = workbook.add_format({'align': 'center',
+                                                      'bold': True,
+                                                      'font_name': 'Calibri',
+                                                      'size': 12,
+
+                                                      })
+        cell_title_text_format.set_border()
+        cell_title_text_format_number = workbook.add_format({'align': 'right',
+                                                             'bold': True,
+                                                             'font_name': 'Calibri',
+                                                             'size': 12,
+                                                             })
+        cell_title_text_format_number.set_border()
+
+        cell_body_text_format_number = workbook.add_format({'align': 'right',
+                                                            'font_name': 'Calibri',
+                                                            'size': 11,
+                                                            'num_format': '#,###0.00'
+                                                            })
+        cell_body_text_format_number.set_border()
+        cell_body_text_format = workbook.add_format({'align': 'center',
+                                                     'font_name': 'Calibri',
+                                                     'size': 11,
+                                                     })
+        cell_body_text_format.set_border()
+        cell_body_text_format_contact = workbook.add_format({'align': 'left',
+                                                             'font_name': 'Calibri',
+                                                             'size': 11,
+                                                             })
+        cell_body_text_format_contact.set_border()
+        cell_body_number_format = workbook.add_format({'align': 'right',
+                                                       'bold': False,
+                                                       'size': 11,
+                                                       'num_format': '#,###0.00'})
+        cell_body_number_format.set_border()
+
+        cell_result_body_number_format = workbook.add_format({'align': 'right',
+                                                              'bold': True,
+                                                              'size': 13,
+                                                              'fg_color': '#FFCC00',
+                                                              'num_format': '#,###0.00'})
+        cell_result_body_number_format.set_border()
+
+        worksheet.set_row(1, 25)
+
+        worksheet.set_column('A:A', 15)
+        worksheet.set_column('B:C', 16)
+        worksheet.set_column('D:D', 50)
+        worksheet.set_column('B:I', 16)
+
+        if self.date_from and self.date_to:
+            row = 2
+            col = 0
+
+            worksheet.merge_range('A2:H2', 'METALOGISTICS PETTY CASH ACCOUNT ', cell_title_text_format_main)
+            worksheet.write(row, 0, 'DATE', cell_title_text_format)
+            worksheet.write(row, 1, 'RECEIPT', cell_title_text_format)
+            worksheet.write(row, 2, 'NAME', cell_title_text_format)
+            worksheet.write(row, 3, 'PARTICULARS', cell_title_text_format)
+            worksheet.write(row, 4, 'VOUCHER NO.', cell_title_text_format)
+            worksheet.write(row, 5, 'QTY', cell_title_text_format)
+            worksheet.write(row, 6, 'PRICE', cell_title_text_format_number)
+            worksheet.write(row, 7, 'AMOUNT', cell_title_text_format_number)
+
+            all_expenses = self.env['hr.expense'].sudo().search(
+                [('date', '<=', self.date_to), ('date', '>=', self.date_from)])
+
+            employee_expense = self.env['hr.expense'].sudo().search([('employee_id', '=', self.customer_name),
+                                                                     ('date', '<=', self.date_to),
+                                                                     ('date', '>=', self.date_from),
+                                                                     ])
+            state_invoice = self.env['account.invoice'].sudo().search([('state', '=', self.state),
+                                                                       ('date', '<=', self.date_to),
+                                                                       ('date', '>=', self.date_from),
+                                                                       ('partner_id.customer', '=', True)])
+            customer_and_state_invoice = self.env['account.invoice'].sudo().search([('state', '=', self.state),
+                                                                                    ('partner_id', '=',
+                                                                                     self.customer_name),
+                                                                                    (
+                                                                                        'date_invoice', '<=',
+                                                                                        self.date_to),
+                                                                                    ('date_invoice', '>=',
+                                                                                     self.date_from),
+                                                                                    ('partner_id.customer', '=', True)])
+
+            if employee_expense:
+                for expense in employee_expense:
+                    request_date = datetime.strftime(expense.date, '%d.%m.%Y')
+                    # receipt = expense.product_id.name
+                    employee_name = expense.employee_id.name
+                    particular = expense.product_id.name
+                    qty = expense.quantity
+                    unit_price = expense.unit_amount
+                    amount = expense.total_amount
+
+                    worksheet.write(row + 1, col, request_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 1, '' or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 2, employee_name or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 3, particular or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 4, 'v' or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 5, qty or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 6, unit_price or '', cell_body_text_format_number)
+                    worksheet.write(row + 1, col + 7, amount or '', cell_body_text_format_number)
+
+                    row = row + 1
+
+            else:
+                for expense in all_expenses:
+                    request_date = datetime.strftime(expense.date, '%d.%m.%Y')
+                    # receipt = expense.product_id.name
+                    employee_name = expense.employee_id.name
+                    particular = expense.product_id.name
+                    qty = expense.quantity
+                    unit_price = expense.unit_amount
+                    amount = expense.total_amount
+
+                    worksheet.write(row + 1, col, request_date or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 1, '' or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 2, employee_name or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 3, particular or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 4, 'v' or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 5, qty or '', cell_body_text_format)
+                    worksheet.write(row + 1, col + 6, unit_price or '', cell_body_text_format_number)
+                    worksheet.write(row + 1, col + 7, amount or '', cell_body_text_format_number)
+
+                    row = row + 1
+
+            worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+                            cell_result_body_number_format)
+
+            # if customer_and_state_invoice:
+            #     for invoice in customer_and_state_invoice:
+            #         name = invoice.partner_id.name
+            #         if invoice.origin:
+            #             inv_number = invoice.debt_number
+            #         else:
+            #             inv_number = invoice.number
+            #         sale_person = invoice.user_id.name
+            #         invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+            #         due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+            #         if invoice.origin:
+            #             amount_tax_excluded = 0 - invoice.amount_untaxed
+            #         else:
+            #             amount_tax_excluded = invoice.amount_untaxed
+            #         amount_tax = invoice.amount_tax
+            #         if invoice.origin:
+            #             total = 0 - invoice.amount_total
+            #         else:
+            #             total = invoice.amount_total
+            #         amount_due = invoice.residual
+            #         status = invoice.state
+            #
+            #         worksheet.write(row + 1, col, name or '', cell_body_text_format_contact)
+            #         worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 8, amount_due or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 9, status or '', cell_body_text_format)
+            #
+            #         row = row + 1
+            #
+            #     worksheet.set_row(row + 1, 23)
+            #     worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 8, f'=SUM({xl_range(1, col + 8, row, col + 8)})',
+            #                     cell_result_body_number_format)
+            #
+            # elif customer_invoice:
+            #     for invoice in customer_invoice:
+            #         name = invoice.partner_id.name
+            #         if invoice.origin:
+            #             inv_number = invoice.debt_number
+            #         else:
+            #             inv_number = invoice.number
+            #         sale_person = invoice.user_id.name
+            #         invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+            #         due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+            #         if invoice.origin:
+            #             amount_tax_excluded = 0 - invoice.amount_untaxed
+            #         else:
+            #             amount_tax_excluded = invoice.amount_untaxed
+            #         amount_tax = invoice.amount_tax
+            #         if invoice.origin:
+            #             total = 0 - invoice.amount_total
+            #         else:
+            #             total = invoice.amount_total
+            #         amount_due = invoice.residual
+            #         status = invoice.state
+            #
+            #         worksheet.write(row + 1, col, name or '', cell_body_text_format_contact)
+            #         worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 8, amount_due or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 9, status or '', cell_body_text_format)
+            #
+            #         row = row + 1
+            #
+            #     worksheet.set_row(row + 1, 23)
+            #     worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 8, f'=SUM({xl_range(1, col + 8, row, col + 8)})',
+            #                     cell_result_body_number_format)
+            # elif state_invoice:
+            #     for invoice in state_invoice:
+            #         name = invoice.partner_id.name
+            #         if invoice.origin:
+            #             inv_number = invoice.debt_number
+            #         else:
+            #             inv_number = invoice.number
+            #         sale_person = invoice.user_id.name
+            #         invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+            #         due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+            #         if invoice.origin:
+            #             amount_tax_excluded = 0 - invoice.amount_untaxed
+            #         else:
+            #             amount_tax_excluded = invoice.amount_untaxed
+            #         amount_tax = invoice.amount_tax
+            #         if invoice.origin:
+            #             total = 0 - invoice.amount_total
+            #         else:
+            #             total = invoice.amount_total
+            #         amount_due = invoice.residual
+            #         status = invoice.state
+            #
+            #         worksheet.write(row + 1, col, name or '', cell_body_text_format_contact)
+            #         worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 8, amount_due or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 9, status or '', cell_body_text_format)
+            #
+            #         row = row + 1
+            #
+            #     worksheet.set_row(row + 1, 23)
+            #     worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 8, f'=SUM({xl_range(1, col + 8, row, col + 8)})',
+            #                     cell_result_body_number_format)
+            #
+            # else:
+            #     for invoice in all_customers_invoice:
+            #         name = invoice.partner_id.name
+            #         if invoice.origin:
+            #             inv_number = invoice.debt_number
+            #         else:
+            #             inv_number = invoice.number
+            #         sale_person = invoice.user_id.name
+            #         invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+            #         due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+            #         if invoice.origin:
+            #             amount_tax_excluded = 0 - invoice.amount_untaxed
+            #         else:
+            #             amount_tax_excluded = invoice.amount_untaxed
+            #         amount_tax = invoice.amount_tax
+            #         if invoice.origin:
+            #             total = 0 - invoice.amount_total
+            #         else:
+            #             total = invoice.amount_total
+            #         amount_due = invoice.residual
+            #         status = invoice.state
+            #
+            #         worksheet.write(row + 1, col, name or '', cell_body_text_format_contact)
+            #         worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 8, amount_due or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 9, status or '', cell_body_text_format)
+            #
+            #         row = row + 1
+            #
+            #     worksheet.set_row(row + 1, 23)
+            #     worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 8, f'=SUM({xl_range(1, col + 8, row, col + 8)})',
+            #                     cell_result_body_number_format)
+
+        workbook.close()
+        file_download = base64.b64encode(fp.getvalue())
+        fp.close()
+
+        self = self.with_context(default_name=file_name, default_file_download=file_download)
+
+        return {
+            'name': 'Expense Report Download',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'expenses.report.excel',
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+            'context': self._context,
+        }
+
+
+class ExpensesReportExcel(models.TransientModel):
+    _name = 'expenses.report.excel'
+    _description = "Expenses report report excel table"
+
+    name = fields.Char('File Name', size=256, readonly=True)
+    file_download = fields.Binary('Download Expense Report', readonly=True)
+
+
 class CustomerInvoiceWizard(models.TransientModel):
     _name = 'customer.invoice.report.wizard'
 
