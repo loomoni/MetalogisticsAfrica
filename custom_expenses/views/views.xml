@@ -1,15 +1,50 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <!-- Inherit expenses Form View to Modify-->
-    <record id="expenses_inherit_id" model="ir.ui.view">
-        <field name="name">expense.inherit.id</field>
-        <field name="model">hr.expense</field>
-        <field name="inherit_id" ref="hr_expense.hr_expense_view_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='product_id']" position="after">
-                <field name="file_number"/>
-            </xpath>
-        </field>
-    </record>
+    <data>
+        <!-- Inherit expenses Form View to Modify-->
+        <record id="expenses_inherit_id" model="ir.ui.view">
+            <field name="name">expense.inherit.id</field>
+            <field name="model">hr.expense</field>
+            <field name="inherit_id" ref="hr_expense.hr_expense_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_id']" position="after">
+                    <field name="file_number"/>
+                </xpath>
+            </field>
+        </record>
 
+        <!-- Inherit expenses Form View to Modify-->
+        <!--    <button name="action_sheet_move_create" states="approve" string="Post Journal Entries" type="object"-->
+        <!--            groups="account.group_account_manager" class="oe_highlight o_expense_sheet_post"/>-->
+
+        <record id="expenses_sheet_inherit_id" model="ir.ui.view">
+            <field name="name">expense.sheet.inherit.id</field>
+            <field name="model">hr.expense.sheet</field>
+            <field name="inherit_id" ref="hr_expense.view_hr_expense_sheet_form"/>
+            <field name="arch" type="xml">
+                <data>
+                    <button name="action_sheet_move_create" position="attributes">
+                        <attribute name="groups">account.group_account_manager,account.group_account_invoice</attribute>
+                    </button>
+                </data>
+            </field>
+        </record>
+
+        <!--    <record id="hr_expense.menu_hr_expense_sheet_all_to_post" model="ir.ui.menu">-->
+        <!--        <field name="name">To Post</field>-->
+        <!--        <field name="sequence" eval="2"/>-->
+        <!--        <field name="parent" ref="hr_expense.menu_hr_expense_report"/>-->
+        <!--        <field name="action" ref="hr_expense.action_hr_expense_sheet_all_to_post"/>-->
+        <!--        <field name="groups" eval="[(4, ref('account.group_account_user')), (4, ref('account.group_account_invoice'))]"/>-->
+        <!--    </record>-->
+
+        <menuitem id="hr_expense.menu_hr_expense_sheet_all_to_post" name="To Post" sequence="2"
+                  parent="hr_expense.menu_hr_expense_report"
+                  action="hr_expense.action_hr_expense_sheet_all_to_post"
+                  groups="account.group_account_user,account.group_account_invoice"/>
+
+        <menuitem id="hr_expense.menu_hr_expense_sheet_all_to_pay" name="To Pay" sequence="3" parent="hr_expense.menu_hr_expense_report"
+                  action="hr_expense.action_hr_expense_sheet_all_to_pay"
+                  groups="account.group_account_manager,account.group_account_user,account.group_account_invoice"/>
+    </data>
 </odoo>
