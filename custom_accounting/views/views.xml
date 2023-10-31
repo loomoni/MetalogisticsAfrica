@@ -8,7 +8,7 @@
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='vat']" position="after">
-<!--                    <field name="vrn"/>-->
+                    <!--                    <field name="vrn"/>-->
                 </xpath>
             </field>
         </record>
@@ -249,6 +249,46 @@
         </record>
         <!-- End of Total customer income report -->
 
+        <!-- Cash Deposit report -->
+        <record model="ir.ui.view" id="cash_deposit_report_wizard">
+            <field name="name">Cash Deposited Report</field>
+            <field name="model">deposit.report.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Cash Deposited Report">
+                    <group>
+                        <field name="account_id"
+                               options="{'no_create_edit': True, 'no_create': True, 'no_open': True}"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="date_from"/>
+                        </group>
+                        <group>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+
+                    <footer>
+                        <button name="get_report" string="Get Report" type="object" class="oe_highlight"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_cash_deposit_report_wizard_excel">
+            <field name="name">view.total.income.report.excel</field>
+            <field name="model">cash.deposit.report.excel</field>
+            <field name="arch" type="xml">
+                <form string="Download Income Invoices Report Here">
+                    <field name="name" invisible="1"/>
+                    <field name="file_download" widget="download_link" filename="name"/>
+                </form>
+            </field>
+        </record>
+        <!-- End of Cash Deposit report -->
+
         <!-- Total expense report -->
         <record model="ir.ui.view" id="expenses_report_wizard">
             <field name="name">Expenses Report</field>
@@ -297,6 +337,12 @@
                     view_mode="form"
                     target="new"/>
 
+        <act_window id="action_deposit_cash_report"
+                    name="Deposited Cash Report"
+                    res_model="deposit.report.wizard"
+                    view_mode="form"
+                    target="new"/>
+
         <act_window id="action_expenses_report"
                     name="Expenses"
                     res_model="expense.report.wizard"
@@ -335,13 +381,20 @@
                 parent="excel_reports_id"
                 sequence="1"
                 groups="account.group_account_manager"/>
+        <menuitem
+                id="cash_deposit_reports_id"
+                name="Deposited Cash Report"
+                action="action_deposit_cash_report"
+                parent="excel_reports_id"
+                sequence="2"
+                groups="account.group_account_manager"/>
 
         <menuitem
                 id="expenses_reports_id"
                 name="Expense"
                 action="action_expenses_report"
                 parent="excel_reports_id"
-                sequence="2"
+                sequence="3"
                 groups="account.group_account_manager"/>
 
         <menuitem
@@ -349,7 +402,7 @@
                 name="Customers Invoice"
                 action="action_customer_invoice_report"
                 parent="excel_reports_id"
-                sequence="3"
+                sequence="4"
                 groups="account.group_account_manager,account.group_account_invoice"/>
 
         <menuitem
@@ -357,7 +410,7 @@
                 name="Vendor bills"
                 action="action_supplier_bills_report"
                 parent="excel_reports_id"
-                sequence="4"
+                sequence="5"
                 groups="account.group_account_manager,account.group_account_invoice"/>
 
         <menuitem
@@ -365,7 +418,7 @@
                 name="Debit Note"
                 action="action_debit_note_report"
                 parent="excel_reports_id"
-                sequence="5"
+                sequence="6"
                 groups="account.group_account_manager,account.group_account_invoice"/>
     </data>
 </odoo>

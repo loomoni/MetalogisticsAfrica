@@ -1,0 +1,199 @@
+<odoo>
+    <data>
+        <!-- Country Manager notification email -->
+        <record id="country_manager_notification_email" model="mail.template">
+            <field name="name">Employee Expenses Request Notification: Send by email</field>
+            <field name="model_id" ref="custom_expenses.model_hr_expense_sheet"/>
+            <field name="auto_delete" eval="True"/>
+            <field name="email_from">${object.employee_id.work_email |safe}</field>
+            <field name="email_to">${object.user_id.login}f
+            </field>
+            <field name="subject">${object.employee_id.name} Expenses Request</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        <strong>
+                            <!--                            Dear ${object.department_id.manager_id.name},-->
+                            Dear Country Manager,
+                        </strong>
+                        <br/>
+                        <strong>${object.employee_id.name}</strong>
+                        is requesting expenses for
+                        <strong>${object.name}</strong>
+                         <br/>
+                        which cost total of <strong>12,0000.</strong> Please take consideration for your Action.
+                        <br/>
+
+                        <br/>
+                        Best regards,
+                        <br/>
+                    </p>
+                </div>
+            </field>
+        </record>
+
+
+        <!--        &lt;!&ndash;Email template Adjustment &ndash;&gt;-->
+        <!--        <record id="stock_adjustment_email_to_hod" model="mail.template">-->
+        <!--            <field name="name">Approved Stock Adjustment: Send by email</field>-->
+        <!--            <field name="model_id" ref="custom_inventory.model_inventory_stock_adjustment"/>-->
+        <!--            <field name="auto_delete" eval="True"/>-->
+        <!--            <field name="email_from">${object.employee.work_email |safe}</field>-->
+        <!--            <field name="email_to">-->
+        <!--                ${','.join([line.product_id.department_id.manager_id.work_email for line in object.stock_adjustment_line_ids])}-->
+        <!--            </field>-->
+        <!--            <field name="subject">${object.stock_adjustment_line_ids[0].product_id.department_id.name} Stock-->
+        <!--                Adjustment-->
+        <!--            </field>-->
+        <!--            <field name="body_html" type="html">-->
+        <!--                <div style="margin: 0px; padding: 0px;">-->
+        <!--                    <p style="margin: 0px; padding: 0px; font-size: 13px;">-->
+        <!--                        <strong>-->
+        <!--                            Dear ${object.stock_adjustment_line_ids[0].product_id.department_id.manager_id.name},-->
+        <!--                        </strong>-->
+        <!--                        <br/>-->
+        <!--                        <br/>-->
+        <!--                        The following items have been removed from your department's stock on <strong>${object.date}-->
+        <!--                    </strong> due to the following reasons:-->
+        <!--                        <br/>-->
+        <!--                        <br/>-->
+        <!--                        <table style="border-collapse: collapse;">-->
+        <!--                            <thead>-->
+        <!--                                <tr>-->
+        <!--                                    <th style="border: 1px solid black; padding: 5px;">Product</th>-->
+        <!--                                    <th style="border: 1px solid black; padding: 5px;">Adjustment</th>-->
+        <!--                                    <th style="border: 1px solid black; padding: 5px;">Reason</th>-->
+        <!--                                </tr>-->
+        <!--                            </thead>-->
+        <!--                            <tbody>-->
+        <!--                                <t t-foreach="object.stock_adjustment_line_ids" t-as="line">-->
+        <!--                                    <tr>-->
+        <!--                                        <td style="border: 1px solid black; padding: 5px;">-->
+        <!--                                            <span t-field="line.product_id.name"/>-->
+        <!--                                        </td>-->
+        <!--                                        <td style="border: 1px solid black; padding: 5px;">-->
+        <!--                                            <span t-field="line.product_id.adjustment"/>-->
+        <!--                                        </td>-->
+        <!--                                        <td style="border: 1px solid black; padding: 5px;">-->
+        <!--                                            <span t-field="line.product_id.reason"/>-->
+        <!--                                        </td>-->
+        <!--                                    </tr>-->
+        <!--                                </t>-->
+        <!--                            </tbody>-->
+        <!--                        </table>-->
+        <!--                        <br/>-->
+        <!--                        Do not hesitate to contact me if you have any questions.-->
+        <!--                        <br/>-->
+        <!--                        <br/>-->
+        <!--                        Regards,-->
+        <!--                        <br/>-->
+        <!--                        <strong>-->
+        <!--                            ${object.employee.name}-->
+        <!--                        </strong>-->
+        <!--                    </p>-->
+        <!--                </div>-->
+        <!--            </field>-->
+        <!--        </record>-->
+
+
+        <!--        &lt;!&ndash;Stock out line manager to Procurement notification email &ndash;&gt;-->
+        <!--        <record id="stock_out_line_manager_to_procurement_notification_email" model="mail.template">-->
+        <!--            <field name="name">Procurement Stock Out Request Notification: Send by email</field>-->
+        <!--            <field name="model_id" ref="custom_inventory.model_inventory_stockout"/>-->
+        <!--            <field name="auto_delete" eval="True"/>-->
+        <!--            <field name="email_from">${object.department_id.manager_id.work_email |safe}</field>-->
+        <!--            <field name="email_to">hmilando@goodneighbors.or.tz,tenzirugambwa@goodneighbors.or.tz,edinakaganda@goodneighbors.or.tz</field>-->
+        <!--&lt;!&ndash;            <field name="email_to">lmorwo@kalen.co.tz,loomonimorwo@gmail.com</field>&ndash;&gt;-->
+        <!--            &lt;!&ndash;            <field name="email_to">${object.department_id.branch_id.manager_id.work_email}&ndash;&gt;-->
+        <!--            &lt;!&ndash;            </field>&ndash;&gt;-->
+        <!--            <field name="subject">${object.requester_id.name} Stock Out Request</field>-->
+        <!--            <field name="body_html" type="html">-->
+        <!--                <div style="margin: 0px; padding: 0px;">-->
+        <!--                    <p style="margin: 0px; padding: 0px; font-size: 13px;">-->
+        <!--                        <strong>-->
+        <!--                            Dear Procurement Team,-->
+        <!--                        </strong>-->
+        <!--                        <br/>-->
+        <!--                        <br/>-->
+        <!--                        You have a stock-out request from <strong>${object.requester_id.name}</strong> that has been-->
+        <!--                        approved by <strong>${object.department_id.manager_id.name}</strong> (Line Manager).-->
+        <!--                        <br/>-->
+        <!--                        Please log in to the Inventory Management System to take action.-->
+        <!--                        <br/>-->
+        <!--                        <br/>-->
+        <!--                        Best regards,-->
+        <!--                        <br/>-->
+        <!--                        <strong>-->
+        <!--                            ${object.department_id.manager_id.name}-->
+        <!--                        </strong>-->
+        <!--                    </p>-->
+        <!--                </div>-->
+        <!--            </field>-->
+        <!--        </record>-->
+
+        <!--        &lt;!&ndash;Stock out AD notification email &ndash;&gt;-->
+        <!--        <record id="stock_out_procurement_to_ad_notification_email" model="mail.template">-->
+        <!--            <field name="name">AD Stock Out Request Notification: Send by email</field>-->
+        <!--            <field name="model_id" ref="custom_inventory.model_inventory_stockout"/>-->
+        <!--            <field name="auto_delete" eval="True"/>-->
+        <!--&lt;!&ndash;            <field name="email_from">${object.department_id.branch_id.manager_id.work_email |safe}</field>&ndash;&gt;-->
+        <!--            <field name="email_from">tenzirugambwa@goodneighbors.or.tz</field>-->
+        <!--&lt;!&ndash;            <field name="email_from">loomonimorwo@gmail.com</field>&ndash;&gt;-->
+        <!--            <field name="email_to">hmilando@goodneighbors.or.tz</field>-->
+        <!--&lt;!&ndash;            <field name="email_to">lmorwo@kalen.co.tz</field>&ndash;&gt;-->
+        <!--            <field name="subject">${object.requester_id.name} Stock Out Request</field>-->
+        <!--            <field name="body_html" type="html">-->
+        <!--                <div style="margin: 0px; padding: 0px;">-->
+        <!--                    <p style="margin: 0px; padding: 0px; font-size: 13px;">-->
+        <!--                        <strong>-->
+        <!--                            Dear Helena Milando,-->
+        <!--                        </strong>-->
+        <!--                        <br/>-->
+        <!--                        <br/>-->
+        <!--                        You have a stock-out request from <strong>${object.requester_id.name}</strong> that has been-->
+        <!--                        verified by <strong>${object.department_id.manager_id.name}</strong> as Line Manager,-->
+        <!--                        <br/>-->
+        <!--                        and reviewed by Procurement Team needs your-->
+        <!--                        attention.-->
+        <!--                        <br/>-->
+        <!--                        <br/>-->
+        <!--                        Please log in to the Inventory Management System to take action.-->
+        <!--                        <br/>-->
+        <!--                        <br/>-->
+        <!--                        Best regards,-->
+        <!--                        <br/>-->
+        <!--                        <strong>-->
+        <!--                            Procurement Team.-->
+        <!--                        </strong>-->
+        <!--                    </p>-->
+        <!--                </div>-->
+        <!--            </field>-->
+        <!--        </record>-->
+
+        <!--        &lt;!&ndash;Stock out AD to requester notification email &ndash;&gt;-->
+        <!--        <record id="stock_out_AD_to_requester_notification_email" model="mail.template">-->
+        <!--            <field name="name">Requester Stock Out Request Notification: Send by email</field>-->
+        <!--            <field name="model_id" ref="custom_inventory.model_inventory_stockout"/>-->
+        <!--            <field name="auto_delete" eval="True"/>-->
+        <!--            <field name="email_from">hmilando@goodneighbors.or.tz</field>-->
+        <!--            <field name="email_to">${object.requester_id.work_email}</field>-->
+        <!--            <field name="subject">${object.requester_id.name} Stock Out Request</field>-->
+        <!--            <field name="body_html" type="html">-->
+        <!--                <div style="margin: 0px; padding: 0px;">-->
+        <!--                    <p style="margin: 0px; padding: 0px; font-size: 13px;">-->
+        <!--                        <strong>-->
+        <!--                            Dear ${object.requester_id.name},-->
+        <!--                        </strong>-->
+        <!--                        <br/>-->
+        <!--                        <br/>-->
+        <!--                        The Item that you have requested are approved by AD, kindly take action.-->
+        <!--                        <br/>-->
+        <!--                        <br/>-->
+        <!--                        <strong>Best regards,</strong>-->
+        <!--                        <br/>-->
+        <!--                    </p>-->
+        <!--                </div>-->
+        <!--            </field>-->
+        <!--        </record>-->
+    </data>
+</odoo>

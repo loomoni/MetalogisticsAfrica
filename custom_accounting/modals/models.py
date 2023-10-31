@@ -105,12 +105,6 @@ class AccountInvoiceInherit(models.Model):
         return locale.format('%.2f', amount, grouping=True)
 
 
-class ResPartnerInherit(models.Model):
-    _inherit = "res.partner"
-
-    vrn = fields.Char(string="VRN")
-
-
 class TotalIncomeWizard(models.TransientModel):
     _name = 'total.income.report.wizard'
 
@@ -422,6 +416,316 @@ class TotalIncomeWizard(models.TransientModel):
 class TotalIncomeReportExcel(models.TransientModel):
     _name = 'total.income.report.excel'
     _description = "Icome report report excel table"
+
+    name = fields.Char('File Name', size=256, readonly=True)
+    file_download = fields.Binary('Download Invoices', readonly=True)
+
+
+class CashDepositWizard(models.TransientModel):
+    _name = 'deposit.report.wizard'
+
+    account_id = fields.Many2one('account.journal', string='Account', required=True)
+    # account_name = fields.Integer(string='Account name', related='account_id.id')
+    date_from = fields.Date(string='Date From', required=True,
+                            default=lambda self: fields.Date.to_string(date.today().replace(day=1)))
+    date_to = fields.Date(string='Date To', required=True,
+                          default=lambda self: fields.Date.to_string(
+                              (datetime.now() + relativedelta(months=+1, day=1, days=-1)).date()))
+    state = fields.Selection([("draft", "Draft"), ("open", "Open"), ("paid", "Paid")])
+
+    @api.multi
+    def get_report(self):
+        file_name = _('Cash Deposit From ' + str(self.date_from) + ' - ' + str(self.date_to) + ' report.xlsx')
+        fp = BytesIO()
+
+        workbook = xlsxwriter.Workbook(fp)
+        worksheet = workbook.add_worksheet('Deposit report')
+        # Disable gridlines
+        worksheet.hide_gridlines(2)  # 2 means 'both'
+
+        heading_company_format = workbook.add_format({
+            # 'bold': True,
+            'font_size': 7,
+            'font_name': 'Arial',
+            # 'align': 'center',
+            'valign': 'vcenter',
+            'text_wrap': True,
+        })
+        heading_company_format.set_border()
+        cell_title_text_format_contact = workbook.add_format({'align': 'left',
+                                                              'bold': True,
+                                                              'font_name': 'Calibri',
+                                                              'size': 12,
+                                                              'fg_color': '#FFCC00',
+                                                              })
+        cell_title_text_format_contact.set_border()
+        cell_title_text_format = workbook.add_format({'align': 'center',
+                                                      'bold': True,
+                                                      'font_name': 'Calibri',
+                                                      'size': 12,
+                                                      'fg_color': '#FFCC00',
+                                                      })
+        cell_title_text_format.set_border()
+
+        cell_body_text_format = workbook.add_format({'align': 'center',
+                                                     'font_name': 'Calibri',
+                                                     'size': 11,
+                                                     })
+        cell_body_text_format.set_border()
+        cell_body_text_format_contact = workbook.add_format({'align': 'left',
+                                                             'font_name': 'Calibri',
+                                                             'size': 11,
+                                                             })
+        cell_body_text_format_contact.set_border()
+        cell_body_number_format = workbook.add_format({'align': 'right',
+                                                       'bold': False,
+                                                       'size': 11,
+                                                       'num_format': '#,###0.00'})
+        cell_body_number_format.set_border()
+
+        cell_result_body_number_format = workbook.add_format({'align': 'right',
+                                                              'bold': True,
+                                                              'size': 13,
+                                                              'fg_color': '#FFCC00',
+                                                              'num_format': '#,###0.00'})
+        cell_result_body_number_format.set_border()
+
+        worksheet.set_row(0, 25)
+
+        worksheet.set_column('A:A', 16)
+        worksheet.set_column('B:B', 16)
+        worksheet.set_column('B:I', 16)
+
+        if self.date_from and self.date_to:
+            row = 0
+            col = 0
+
+            worksheet.write(row, 0, 'Date', cell_title_text_format)
+            worksheet.write(row, 1, 'Amount', cell_title_text_format)
+            worksheet.write(row, 2, 'Status', cell_title_text_format)
+
+            all_posited_deposit = self.env['account.move'].sudo().search([('date', '<=', self.date_to),
+                                                                          ('date', '>=', self.date_from),
+                                                                          ])
+
+            if all_posited_deposit:
+                for cash_deposit in all_posited_deposit:
+                    for line in cash_deposit.line_ids:
+                        if line.debit > 0 and line.account_id.id == self.account_id.id:
+                            posted_date = datetime.strftime(cash_deposit.date, '%d-%m-%Y')
+                            # for amount in all_posited_deposit.line_ids:
+                            amount_deposited = line.debit
+                            status = cash_deposit.state
+
+                            worksheet.write(row + 1, col, posted_date or '', cell_body_text_format)
+                            worksheet.write(row + 1, col + 1, amount_deposited or '', cell_body_number_format)
+                            worksheet.write(row + 1, col + 2, status or '', cell_body_text_format)
+                            row = row + 1
+                            # row1 = row + 1
+
+                worksheet.set_row(row + 1, 23)
+                worksheet.write(row + 1, 1, f'=SUM({xl_range(1, col + 1, row, col + 1)})',
+                                cell_result_body_number_format)
+
+            # if customer_and_state_invoice:
+            #     for invoice in customer_and_state_invoice:
+            #         name = invoice.partner_id.name
+            #         if invoice.origin:
+            #             inv_number = invoice.debt_number
+            #         else:
+            #             inv_number = invoice.number
+            #         sale_person = invoice.user_id.name
+            #         invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+            #         due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+            #         if invoice.origin:
+            #             amount_tax_excluded = 0 - invoice.amount_untaxed
+            #         else:
+            #             amount_tax_excluded = invoice.amount_untaxed
+            #         amount_tax = invoice.amount_tax
+            #         if invoice.origin:
+            #             total = 0 - invoice.amount_total
+            #         else:
+            #             total = invoice.amount_total
+            #         amount_due = invoice.residual
+            #         status = invoice.state
+            #
+            #         worksheet.write(row + 1, col, name or '', cell_body_text_format_contact)
+            #         worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 8, amount_due or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 9, status or '', cell_body_text_format)
+            #
+            #         row = row + 1
+            #
+            #     worksheet.set_row(row + 1, 23)
+            #     worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 8, f'=SUM({xl_range(1, col + 8, row, col + 8)})',
+            #                     cell_result_body_number_format)
+            #
+            # elif customer_invoice:
+            #     for invoice in customer_invoice:
+            #         name = invoice.partner_id.name
+            #         if invoice.origin:
+            #             inv_number = invoice.debt_number
+            #         else:
+            #             inv_number = invoice.number
+            #         sale_person = invoice.user_id.name
+            #         invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+            #         due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+            #         if invoice.origin:
+            #             amount_tax_excluded = 0 - invoice.amount_untaxed
+            #         else:
+            #             amount_tax_excluded = invoice.amount_untaxed
+            #         amount_tax = invoice.amount_tax
+            #         if invoice.origin:
+            #             total = 0 - invoice.amount_total
+            #         else:
+            #             total = invoice.amount_total
+            #         amount_due = invoice.residual
+            #         status = invoice.state
+            #
+            #         worksheet.write(row + 1, col, name or '', cell_body_text_format_contact)
+            #         worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 8, amount_due or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 9, status or '', cell_body_text_format)
+            #
+            #         row = row + 1
+            #
+            #     worksheet.set_row(row + 1, 23)
+            #     worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 8, f'=SUM({xl_range(1, col + 8, row, col + 8)})',
+            #                     cell_result_body_number_format)
+            # elif state_invoice:
+            #     for invoice in state_invoice:
+            #         name = invoice.partner_id.name
+            #         if invoice.origin:
+            #             inv_number = invoice.debt_number
+            #         else:
+            #             inv_number = invoice.number
+            #         sale_person = invoice.user_id.name
+            #         invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+            #         due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+            #         if invoice.origin:
+            #             amount_tax_excluded = 0 - invoice.amount_untaxed
+            #         else:
+            #             amount_tax_excluded = invoice.amount_untaxed
+            #         amount_tax = invoice.amount_tax
+            #         if invoice.origin:
+            #             total = 0 - invoice.amount_total
+            #         else:
+            #             total = invoice.amount_total
+            #         amount_due = invoice.residual
+            #         status = invoice.state
+            #
+            #         worksheet.write(row + 1, col, name or '', cell_body_text_format_contact)
+            #         worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 8, amount_due or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 9, status or '', cell_body_text_format)
+            #
+            #         row = row + 1
+            #
+            #     worksheet.set_row(row + 1, 23)
+            #     worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 8, f'=SUM({xl_range(1, col + 8, row, col + 8)})',
+            #                     cell_result_body_number_format)
+            #
+            # else:
+            #     for invoice in all_customers_invoice:
+            #         name = invoice.partner_id.name
+            #         if invoice.origin:
+            #             inv_number = invoice.debt_number
+            #         else:
+            #             inv_number = invoice.number
+            #         sale_person = invoice.user_id.name
+            #         invoice_date = datetime.strftime(invoice.date_invoice, '%d/%m/%Y')
+            #         due_date = datetime.strftime(invoice.date_due, '%d/%m/%Y')
+            #         if invoice.origin:
+            #             amount_tax_excluded = 0 - invoice.amount_untaxed
+            #         else:
+            #             amount_tax_excluded = invoice.amount_untaxed
+            #         amount_tax = invoice.amount_tax
+            #         if invoice.origin:
+            #             total = 0 - invoice.amount_total
+            #         else:
+            #             total = invoice.amount_total
+            #         amount_due = invoice.residual
+            #         status = invoice.state
+            #
+            #         worksheet.write(row + 1, col, name or '', cell_body_text_format_contact)
+            #         worksheet.write(row + 1, col + 1, inv_number or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 2, sale_person or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 3, invoice_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 4, due_date or '', cell_body_text_format)
+            #         worksheet.write(row + 1, col + 5, amount_tax_excluded or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 6, amount_tax or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 7, total or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 8, amount_due or '', cell_body_number_format)
+            #         worksheet.write(row + 1, col + 9, status or '', cell_body_text_format)
+            #
+            #         row = row + 1
+            #
+            #     worksheet.set_row(row + 1, 23)
+            #     worksheet.write(row + 1, 5, f'=SUM({xl_range(1, col + 5, row, col + 5)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 6, f'=SUM({xl_range(1, col + 6, row, col + 6)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 7, f'=SUM({xl_range(1, col + 7, row, col + 7)})',
+            #                     cell_result_body_number_format)
+            #     worksheet.write(row + 1, 8, f'=SUM({xl_range(1, col + 8, row, col + 8)})',
+            #                     cell_result_body_number_format)
+
+        workbook.close()
+        file_download = base64.b64encode(fp.getvalue())
+        fp.close()
+
+        self = self.with_context(default_name=file_name, default_file_download=file_download)
+
+        return {
+            'name': 'Cash Deposited Report Download',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'cash.deposit.report.excel',
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+            'context': self._context,
+        }
+
+
+class CashDepositExcel(models.TransientModel):
+    _name = 'cash.deposit.report.excel'
+    _description = "Cash Deposited report excel table"
 
     name = fields.Char('File Name', size=256, readonly=True)
     file_download = fields.Binary('Download Invoices', readonly=True)

@@ -13,6 +13,7 @@
     'demo': [],
     'data': [
         'views/views.xml',
+        'data/email_template.xml',
 
     ],
     'installable': True,

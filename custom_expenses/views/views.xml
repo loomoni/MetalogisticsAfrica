@@ -30,20 +30,13 @@
             </field>
         </record>
 
-        <!--    <record id="hr_expense.menu_hr_expense_sheet_all_to_post" model="ir.ui.menu">-->
-        <!--        <field name="name">To Post</field>-->
-        <!--        <field name="sequence" eval="2"/>-->
-        <!--        <field name="parent" ref="hr_expense.menu_hr_expense_report"/>-->
-        <!--        <field name="action" ref="hr_expense.action_hr_expense_sheet_all_to_post"/>-->
-        <!--        <field name="groups" eval="[(4, ref('account.group_account_user')), (4, ref('account.group_account_invoice'))]"/>-->
-        <!--    </record>-->
-
         <menuitem id="hr_expense.menu_hr_expense_sheet_all_to_post" name="To Post" sequence="2"
                   parent="hr_expense.menu_hr_expense_report"
                   action="hr_expense.action_hr_expense_sheet_all_to_post"
                   groups="account.group_account_user,account.group_account_invoice"/>
 
-        <menuitem id="hr_expense.menu_hr_expense_sheet_all_to_pay" name="To Pay" sequence="3" parent="hr_expense.menu_hr_expense_report"
+        <menuitem id="hr_expense.menu_hr_expense_sheet_all_to_pay" name="To Pay" sequence="3"
+                  parent="hr_expense.menu_hr_expense_report"
                   action="hr_expense.action_hr_expense_sheet_all_to_pay"
                   groups="account.group_account_manager,account.group_account_user,account.group_account_invoice"/>
     </data>
