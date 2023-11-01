@@ -11,12 +11,6 @@ from xlsxwriter.utility import xl_range
 from odoo import fields, models, api, _
 from odoo.tools import datetime
 
-class AccountMoveInherit(models.Model):
-    _inherit = "account.move"
-
-    journal_id = fields.Many2one(comodel_name="account.journal", states={'posted': [('readonly', False)]}, )
-
-
 class AccountInvoiceInherit(models.Model):
     _inherit = 'account.invoice'
     _order = 'id DESC'
