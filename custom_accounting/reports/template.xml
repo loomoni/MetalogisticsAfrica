@@ -166,8 +166,8 @@
                                 <td>
                                     <span>TIN:</span>
                                     <span t-field="o.partner_id.vat"/>
-<!--                                    <span>VRN:</span>-->
-<!--                                    <span t-field="o.partner_id.vrn"/>-->
+                                    <!--                                    <span>VRN:</span>-->
+                                    <!--                                    <span t-field="o.partner_id.vrn"/>-->
                                 </td>
                                 <td></td>
                                 <td></td>
@@ -195,46 +195,24 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!--                                <t t-set="odd_even" t-value="0"/>-->
                                 <t t-foreach="o.invoice_line_ids" t-as="line">
-                                    <!--                                    <t t-set="odd_even" t-value="1 - odd_even"/>-->
                                     <tr>
 
-                                        <!--                                        <t t-if="odd_even == 1">-->
-                                        <td style="border-right: 1px solid #000; padding: 8px; text-align: left; background-color: #ffffff;">
-
+                                        <td style="border-right: 1px solid #000; padding: 8px; text-align: left; background-color: #ffffff; font-family: Arial; font-size: 14px;">
                                             <span t-field="line.product_id.name"/>
                                         </td>
-                                        <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color: #ffffff;">
+                                        <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color: #ffffff; font-family: Arial; font-size: 14px;">
                                             <span t-esc="line.quantity"/>
                                         </td>
-                                        <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color: #ffffff;">
+                                        <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color: #ffffff; font-family: Arial; font-size: 14px;">
                                             <span t-field="line.price_unit"/>
                                         </td>
-                                        <td style="border-right: 1px solid #000;padding: 8px; text-align: right; background-color:  #ffffff;">
+                                        <td style="border-right: 1px solid #000;padding: 8px; text-align: right; background-color:  #ffffff; font-family: Arial; font-size: 14px;">
                                             <span t-field="line.invoice_line_tax_ids.name"/>
                                         </td>
-                                        <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color: #ffffff;">
+                                        <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color: #ffffff; font-family: Arial; font-size: 14px;">
                                             <span t-field="line.price_total"/>
                                         </td>
-                                        <!--                                        </t>-->
-                                        <!--                                        <t t-if="odd_even == 0">-->
-                                        <!--                                            <td style="border-right: 1px solid #000; padding: 8px; text-align: left; background-color: #f2f2f2;">-->
-                                        <!--                                                <span t-field="line.product_id.name"/>-->
-                                        <!--                                            </td>-->
-                                        <!--                                            <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color:  #f2f2f2;">-->
-                                        <!--                                                <span t-esc="line.quantity"/>-->
-                                        <!--                                            </td>-->
-                                        <!--                                            <td style="border-right: 1px solid #000;padding: 8px; text-align: right; background-color:  #f2f2f2;">-->
-                                        <!--                                                <span t-field="line.price_unit"/>-->
-                                        <!--                                            </td>-->
-                                        <!--                                            <td style="border-right: 1px solid #000;padding: 8px; text-align: right; background-color:  #f2f2f2;">-->
-                                        <!--                                                <span t-field="line.price_unit"/>-->
-                                        <!--                                            </td>-->
-                                        <!--                                            <td style="border-right: 1px solid #000; padding: 8px; text-align: right; background-color:  #f2f2f2;">-->
-                                        <!--                                                <span t-field="line.price_total"/>-->
-                                        <!--                                            </td>-->
-                                        <!--                                        </t>-->
                                     </tr>
                                 </t>
 

@@ -35,9 +35,9 @@
                     <button name="reset_expense_sheets" position="attributes">
                         <attribute name="groups">account.group_account_manager,account.group_account_invoice</attribute>
                     </button>
-                     <button name="286" position="attributes">
-                        <attribute name="groups">account.group_account_manager,account.group_account_invoice</attribute>
-                    </button>
+                    <!--                    <button name="286" position="attributes">-->
+                    <!--                        <attribute name="groups">account.group_account_manager,account.group_account_invoice</attribute>-->
+                    <!--                    </button>-->
                 </data>
             </field>
         </record>
@@ -51,5 +51,37 @@
                   parent="hr_expense.menu_hr_expense_report"
                   action="hr_expense.action_hr_expense_sheet_all_to_pay"
                   groups="account.group_account_manager,account.group_account_user,account.group_account_invoice"/>
+
+        <menuitem id="hr_expense.menu_hr_expense_sheet_all_to_pay" name="To Pay" sequence="3"
+                  parent="hr_expense.menu_hr_expense_report"
+                  action="hr_expense.action_hr_expense_sheet_all_to_pay"
+                  groups="hr.group_hr_manager"/>
+        <menuitem
+                id="hr.menu_hr_root"
+                name="Employees"
+                groups="hr.group_hr_manager"
+                web_icon="hr,static/description/icon.png"
+                sequence="75"/>
+
+        <menuitem
+                id="hr.menu_hr_main"
+                name="Human Resources"
+                parent="hr.menu_hr_root"
+                groups="hr.group_hr_manager"
+                sequence="0"/>
+        <menuitem
+                id="hr.menu_open_view_employee_list_my"
+                action="hr.open_view_employee_list_my"
+                parent="hr.menu_hr_root"
+                groups="hr.group_hr_manager"
+                sequence="3"/>
+
+        <menuitem
+                action="hr.open_module_tree_department"
+                id="hr.menu_hr_department_tree"
+                parent="hr.menu_hr_root"
+                groups="hr.group_hr_manager"
+                sequence="90"
+        />
     </data>
 </odoo>

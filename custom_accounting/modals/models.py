@@ -12,6 +12,12 @@ from odoo import fields, models, api, _
 from odoo.tools import datetime
 
 
+class AccountMoveInherit(models.Model):
+    _inherit = "account.move"
+
+    journal_id = fields.Many2one(comodel_name="account.journal", string="Journal", readonly=False, required=True)
+
+
 class AccountInvoiceInherit(models.Model):
     _inherit = 'account.invoice'
     _order = 'id DESC'
@@ -24,21 +30,18 @@ class AccountInvoiceInherit(models.Model):
     delivery_no = fields.Char(string="Delivery Note No.")
     debt_number = fields.Char(string="Number", compute="debt_compute", store=True)
     number = fields.Char(string="Number", store=True)
+    date_invoice = fields.Date(string="Date", readonly=False)
 
     @api.onchange('number', 'origin')
     @api.depends('number', 'origin')
     def debt_compute(self):
         for record in self:
             if record.origin:
-                # print(f"Origin Value: {record.origin}")
-                # record.debt_number = f"MADN-{record.origin}"
-                # record.debt_number = 5
                 numeric_origin = ''.join(filter(str.isdigit, record.origin))
                 record.debt_number = f"MADN-{numeric_origin}"
                 record.number = record.debt_number
             else:
                 record.debt_number = False
-                # record.number = False
 
     @api.multi
     def action_invoice_open(self):
@@ -51,21 +54,6 @@ class AccountInvoiceInherit(models.Model):
             else:
                 invoice.number = invoice.move_id.name
         return res
-
-    # @api.model
-    # def create(self, vals):
-    #     if vals.get('type') == 'out_invoice' and 'origin' in vals:
-    #         # Check if the 'origin' field is present and the type is 'out_invoice' (invoice)
-    #         debt_number = vals.get('debt_number')  # Get the 'debit_number' value
-    #         if debt_number and debt_number.strip():  # Check if it's not empty
-    #             vals['number'] = debt_number  # Use 'debit_number' as the invoice number
-    #         else:
-    #             # # Use the default sequence if 'debit_number' is empty
-    #             # sequence = self.env['ir.sequence'].next_by_code('INV Sequence')
-    #             # vals['number'] = sequence
-    #             vals['number'] = 4
-    #
-    #     return super(AccountInvoiceInherit, self).create(vals)
 
     @api.model
     def company_info(self):
@@ -424,7 +412,7 @@ class TotalIncomeReportExcel(models.TransientModel):
 class CashDepositWizard(models.TransientModel):
     _name = 'deposit.report.wizard'
 
-    account_id = fields.Many2one('account.journal', string='Account', required=True)
+    account_id = fields.Many2one('account.account', string='Account', required=True)
     # account_name = fields.Integer(string='Account name', related='account_id.id')
     date_from = fields.Date(string='Date From', required=True,
                             default=lambda self: fields.Date.to_string(date.today().replace(day=1)))

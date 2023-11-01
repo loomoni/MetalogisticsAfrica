@@ -9,7 +9,7 @@
     'sequence': '8',
     'author': 'Loomoni Morwo',
     'website': 'http://loomoni.com',
-    'depends': ['hr_expense'],
+    'depends': ['hr_expense', 'hr'],
     'demo': [],
     'data': [
         'views/views.xml',
