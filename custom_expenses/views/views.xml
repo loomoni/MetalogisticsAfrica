@@ -35,7 +35,7 @@
                     <button name="reset_expense_sheets" position="attributes">
                         <attribute name="groups">account.group_account_manager,account.group_account_invoice</attribute>
                     </button>
-                     <button name="291" position="attributes">
+                     <button name="286" position="attributes">
                         <attribute name="groups">account.group_account_manager,account.group_account_invoice</attribute>
                     </button>
                 </data>
