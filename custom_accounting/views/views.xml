@@ -22,14 +22,14 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//field[@name='payment_term_id']" position="after">
-                    <field name="file_no"/>
-                    <field name="awb_bl"/>
-                    <field name="tansad_no"/>
+                    <field name="file_no"  attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
+                    <field name="awb_bl" attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
+                    <field name="tansad_no" attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
                 </xpath>
                 <xpath expr="//field[@name='date_due']" position="after">
-                    <field name="pkg_no"/>
-                    <field name="weight"/>
-                    <field name="delivery_no"/>
+                    <field name="pkg_no" attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
+                    <field name="weight" attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
+                    <field name="delivery_no" attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
                 </xpath>
 
             </field>

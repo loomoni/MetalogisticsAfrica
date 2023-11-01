@@ -11,18 +11,17 @@ from xlsxwriter.utility import xl_range
 from odoo import fields, models, api, _
 from odoo.tools import datetime
 
-
 class AccountMoveInherit(models.Model):
     _inherit = "account.move"
 
-    journal_id = fields.Many2one(comodel_name="account.journal", string="Journal", readonly=False, required=True)
+    journal_id = fields.Many2one(comodel_name="account.journal", states={'posted': [('readonly', False)]}, )
 
 
 class AccountInvoiceInherit(models.Model):
     _inherit = 'account.invoice'
     _order = 'id DESC'
 
-    file_no = fields.Char(string="File Number")
+    file_no = fields.Char(string="File Number", states={'open': [('readonly', True)]}, )
     awb_bl = fields.Char(string="AWB/BL")
     tansad_no = fields.Char(string="TANSAD No")
     pkg_no = fields.Char(string="Pkg No")
@@ -30,7 +29,6 @@ class AccountInvoiceInherit(models.Model):
     delivery_no = fields.Char(string="Delivery Note No.")
     debt_number = fields.Char(string="Number", compute="debt_compute", store=True)
     number = fields.Char(string="Number", store=True)
-    date_invoice = fields.Date(string="Date", readonly=False)
 
     @api.onchange('number', 'origin')
     @api.depends('number', 'origin')
