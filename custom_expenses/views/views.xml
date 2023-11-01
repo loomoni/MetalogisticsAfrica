@@ -26,6 +26,18 @@
                     <button name="action_sheet_move_create" position="attributes">
                         <attribute name="groups">account.group_account_manager,account.group_account_invoice</attribute>
                     </button>
+                    <button name="approve_expense_sheets" position="attributes">
+                        <attribute name="groups">account.group_account_manager,account.group_account_invoice</attribute>
+                    </button>
+                    <button name="reset_expense_sheets" position="attributes">
+                        <attribute name="groups">account.group_account_manager,account.group_account_invoice</attribute>
+                    </button>
+                    <button name="reset_expense_sheets" position="attributes">
+                        <attribute name="groups">account.group_account_manager,account.group_account_invoice</attribute>
+                    </button>
+                     <button name="291" position="attributes">
+                        <attribute name="groups">account.group_account_manager,account.group_account_invoice</attribute>
+                    </button>
                 </data>
             </field>
         </record>

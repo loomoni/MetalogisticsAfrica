@@ -1,36 +1,37 @@
 <odoo>
     <data>
         <!-- Country Manager notification email -->
-        <record id="country_manager_notification_email" model="mail.template">
-            <field name="name">Employee Expenses Request Notification: Send by email</field>
-            <field name="model_id" ref="custom_expenses.model_hr_expense_sheet"/>
-            <field name="auto_delete" eval="True"/>
-            <field name="email_from">${object.employee_id.work_email |safe}</field>
-            <field name="email_to">${object.user_id.login}f
-            </field>
-            <field name="subject">${object.employee_id.name} Expenses Request</field>
-            <field name="body_html" type="html">
-                <div style="margin: 0px; padding: 0px;">
-                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
-                        <strong>
-                            <!--                            Dear ${object.department_id.manager_id.name},-->
-                            Dear Country Manager,
-                        </strong>
-                        <br/>
-                        <strong>${object.employee_id.name}</strong>
-                        is requesting expenses for
-                        <strong>${object.name}</strong>
-                         <br/>
-                        which cost total of <strong>12,0000.</strong> Please take consideration for your Action.
-                        <br/>
+<!--        <record id="country_manager_notification_email" model="mail.template">-->
+<!--            <field name="name">Employee Expenses Request Notification: Send by email</field>-->
+<!--            <field name="model_id" ref="custom_expenses.model_hr_expense_sheet"/>-->
+<!--            <field name="auto_delete" eval="True"/>-->
+<!--&lt;!&ndash;            <field name="email_from">${object.employee_id.work_email |safe}</field>&ndash;&gt;-->
+<!--            <field name="email_from">daniellukumay@gmail.com</field>-->
+<!--&lt;!&ndash;            <field name="email_to">${object.user_id.login}</field>&ndash;&gt;-->
+<!--            <field name="email_to">loomonimorwo1@gmail.com</field>-->
+<!--            <field name="subject">${object.employee_id.name} Expenses Request</field>-->
+<!--            <field name="body_html" type="html">-->
+<!--                <div style="margin: 0px; padding: 0px;">-->
+<!--                    <p style="margin: 0px; padding: 0px; font-size: 13px;">-->
+<!--                        <strong>-->
+<!--                            &lt;!&ndash;                            Dear ${object.department_id.manager_id.name},&ndash;&gt;-->
+<!--                            Dear Country Manager,-->
+<!--                        </strong>-->
+<!--                        <br/>-->
+<!--                        <strong>${object.employee_id.name}</strong>-->
+<!--                        is requesting expenses for-->
+<!--                        <strong>${object.name}</strong>-->
+<!--                         <br/>-->
+<!--                        which cost total of <strong>12,0000.</strong> Please take consideration for your Action.-->
+<!--                        <br/>-->
 
-                        <br/>
-                        Best regards,
-                        <br/>
-                    </p>
-                </div>
-            </field>
-        </record>
+<!--                        <br/>-->
+<!--                        Best regards,-->
+<!--                        <br/>-->
+<!--                    </p>-->
+<!--                </div>-->
+<!--            </field>-->
+<!--        </record>-->
 
 
         <!--        &lt;!&ndash;Email template Adjustment &ndash;&gt;-->
@@ -104,8 +105,8 @@
         <!--            <field name="email_from">${object.department_id.manager_id.work_email |safe}</field>-->
         <!--            <field name="email_to">hmilando@goodneighbors.or.tz,tenzirugambwa@goodneighbors.or.tz,edinakaganda@goodneighbors.or.tz</field>-->
         <!--&lt;!&ndash;            <field name="email_to">lmorwo@kalen.co.tz,loomonimorwo@gmail.com</field>&ndash;&gt;-->
-        <!--            &lt;!&ndash;            <field name="email_to">${object.department_id.branch_id.manager_id.work_email}&ndash;&gt;-->
-        <!--            &lt;!&ndash;            </field>&ndash;&gt;-->
+<!--                                <field name="email_to">${object.department_id.branch_id.manager_id.work_email}-->
+<!--                                </field>-->
         <!--            <field name="subject">${object.requester_id.name} Stock Out Request</field>-->
         <!--            <field name="body_html" type="html">-->
         <!--                <div style="margin: 0px; padding: 0px;">-->
