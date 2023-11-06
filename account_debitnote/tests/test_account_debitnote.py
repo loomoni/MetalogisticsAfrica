@@ -24,14 +24,14 @@ class TestAccountDebitNote(TransactionCase):
 
     def call_invoice_debit_note(self, invoice):
         ctx = {'active_id': invoice.id, 'active_ids': [invoice.id]}
-        view_id = 'ksa_account_debitnote.view_account_invoice_debitnote'
+        view_id = 'account_debitnote.view_account_invoice_debitnote'
         with Form(self.Wizard.with_context(ctx), view=view_id) as f:
             f.date = date.today()
             f.description = 'Test'
         wizard = f.save()
         wizard.invoice_debitnote()
 
-    def test_1_ksa_account_debitnote(self):
+    def test_1_account_debitnote(self):
         """I create invoice, validate it, and create debit note. I expect,
         - Invoice is open.
         - Debit note is created.

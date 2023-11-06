@@ -1,25 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-<!--        <record id="invoice_print_pdf_id" model="ir.actions.report">-->
-<!--            <field name="name">Invoice</field>-->
-<!--            <field name="model">account.invoice</field>-->
-<!--            <field name="report_type">qweb-pdf</field>-->
-<!--            <field name="report_name">custom_accounting.invoice_print_pdf</field>-->
-<!--            <field name="report_file">custom_accounting.invoice_print_pdf</field>-->
-<!--            <field name="binding_model_id" ref="model_account_invoice"/>-->
-<!--            <field name="binding_type">report</field>-->
-<!--        </record>-->
+        <!--        <record id="invoice_print_pdf_id" model="ir.actions.report">-->
+        <!--            <field name="name">Invoice</field>-->
+        <!--            <field name="model">account.invoice</field>-->
+        <!--            <field name="report_type">qweb-pdf</field>-->
+        <!--            <field name="report_name">custom_accounting.invoice_print_pdf</field>-->
+        <!--            <field name="report_file">custom_accounting.invoice_print_pdf</field>-->
+        <!--            <field name="binding_model_id" ref="model_account_invoice"/>-->
+        <!--            <field name="binding_type">report</field>-->
+        <!--        </record>-->
 
-       <report
-                id="report_booking_overall_id"
+<!--        <report-->
+<!--                id="invoice_report_action"-->
+<!--                model="account.invoice"-->
+<!--                string="Invoice"-->
+<!--                menu="True"-->
+<!--                report_type="qweb-pdf"-->
+<!--                name="custom_accounting.invoice_print_pdf"-->
+<!--                file="custom_accounting.invoice_print_pdf"-->
+<!--        />-->
+
+        <report
+                id="invoice_report_action"
                 model="account.invoice"
                 string="Invoice"
                 menu="True"
                 report_type="qweb-pdf"
                 name="custom_accounting.invoice_print_pdf"
-                file="custom_accounting.invoice_print_pdf"
+                file="custom_accounting.invoice_report_action"
         />
+
+
+        <!-- Report action for invoices and debit notes -->
+        <!--        <record id="report_invoice_debit_action" model="ir.actions.report">-->
+        <!--            <field name="name">custom_invoice_debit_report_action</field>-->
+        <!--            <field name="report_name">custom_accounting.invoice_print_pdf</field>-->
+        <!--            <field name="report_type">qweb-pdf</field>-->
+        <!--            <field name="model">account.invoice</field>-->
+        <!--            <field name="report_file">custom_accounting.invoice_print_pdf</field>-->
+        <!--            <field name="menu">True</field>-->
+        <!--        </record>-->
 
     </data>
 

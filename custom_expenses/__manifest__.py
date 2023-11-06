@@ -12,6 +12,7 @@
     'depends': ['hr_expense', 'hr'],
     'demo': [],
     'data': [
+        'security/security.xml',
         'views/views.xml',
         'data/email_template.xml',
 

@@ -11,6 +11,7 @@ from xlsxwriter.utility import xl_range
 from odoo import fields, models, api, _
 from odoo.tools import datetime
 
+
 class AccountInvoiceInherit(models.Model):
     _inherit = 'account.invoice'
     _order = 'id DESC'
@@ -24,6 +25,38 @@ class AccountInvoiceInherit(models.Model):
     # debt_number = fields.Char(string="Number", compute="debt_compute", store=True)
     # number = fields.Char(string="Number", store=True)
     # move_id = fields.Many2one(comodel_name='account.move', string="Account Move Name")
+    #
+    # # Define a computed field to set the report name dynamically
+    # report_name = fields.Char(
+    #     string="Report Name",
+    #     compute='_compute_report_name',
+    #     store=True
+    # )
+    #
+    # @api.depends('type')
+    # def _compute_report_name(self):
+    #     for invoice in self:
+    #
+    #         # Set the string based on the type of the invoice and the presence of origin
+    #         if invoice.type == 'out_invoice':
+    #             invoice.report_name = 'Invoice: ' + (invoice.number or '')
+    #         elif invoice.type == 'out_invoice' and invoice.origin:
+    #             invoice.report_name = 'Debit Note: ' + (invoice.number or '')
+    #         else:
+    #             invoice.report_name = "Report"
+    #
+    # # Modify the report action to use the computed field
+    # def print_custom_report(self):
+    #     report_name = self.report_name  # Use the computed report name
+    #     action = self.env.ref('custom_accounting.' + report_name, raise_if_not_found=False)
+    #     if action:
+    #         return action.report_action(self)
+    #     else:
+    #         return False
+    #
+    # @api.multi
+    # def invoice_report_action(self):
+    #     return self.print_custom_report()
     #
     # @api.onchange('number', 'origin')
     # @api.depends('number', 'origin')
@@ -50,6 +83,21 @@ class AccountInvoiceInherit(models.Model):
     #         else:
     #             invoice.number = invoice.move_id.name
     #     return res
+
+    # @api.multi
+    # def name_get(self):
+    #     result = []
+    #     for invoice in self:
+    #         # Set the string based on the type of the invoice and the presence of origin
+    #         if invoice.type == 'out_invoice':
+    #             name = 'Invoice: ' + (invoice.number or '')
+    #         elif invoice.type == 'out_invoice' and invoice.origin:
+    #             name = 'Debit Note: ' + (invoice.number or '')
+    #         else:
+    #             name = invoice.number or ''
+    #
+    #         result.append((invoice.id, name))
+    #     return result
 
     @api.model
     def company_info(self):
@@ -205,7 +253,7 @@ class TotalIncomeWizard(models.TransientModel):
                 for invoice in customer_and_state_invoice:
                     name = invoice.partner_id.name
                     if invoice.origin:
-                        inv_number = invoice.debt_number
+                        inv_number = invoice.number
                     else:
                         inv_number = invoice.number
                     sale_person = invoice.user_id.name
@@ -250,7 +298,7 @@ class TotalIncomeWizard(models.TransientModel):
                 for invoice in customer_invoice:
                     name = invoice.partner_id.name
                     if invoice.origin:
-                        inv_number = invoice.debt_number
+                        inv_number = invoice.number
                     else:
                         inv_number = invoice.number
                     sale_person = invoice.user_id.name
@@ -294,7 +342,7 @@ class TotalIncomeWizard(models.TransientModel):
                 for invoice in state_invoice:
                     name = invoice.partner_id.name
                     if invoice.origin:
-                        inv_number = invoice.debt_number
+                        inv_number = invoice.number
                     else:
                         inv_number = invoice.number
                     sale_person = invoice.user_id.name
@@ -339,7 +387,7 @@ class TotalIncomeWizard(models.TransientModel):
                 for invoice in all_customers_invoice:
                     name = invoice.partner_id.name
                     if invoice.origin:
-                        inv_number = invoice.debt_number
+                        inv_number = invoice.number
                     else:
                         inv_number = invoice.number
                     sale_person = invoice.user_id.name
@@ -1203,7 +1251,7 @@ class CustomerInvoiceWizard(models.TransientModel):
                 for invoice in customer_and_state_invoice:
                     name = invoice.partner_id.name
                     if invoice.origin:
-                        inv_number = invoice.debt_number
+                        inv_number = invoice.number
                     else:
                         inv_number = invoice.number
                     sale_person = invoice.user_id.name
@@ -1232,7 +1280,7 @@ class CustomerInvoiceWizard(models.TransientModel):
                 for invoice in customer_invoice:
                     name = invoice.partner_id.name
                     if invoice.origin:
-                        inv_number = invoice.debt_number
+                        inv_number = invoice.number
                     else:
                         inv_number = invoice.number
                     sale_person = invoice.user_id.name
@@ -1261,7 +1309,7 @@ class CustomerInvoiceWizard(models.TransientModel):
                 for invoice in state_invoice:
                     name = invoice.partner_id.name
                     if invoice.origin:
-                        inv_number = invoice.debt_number
+                        inv_number = invoice.number
                     else:
                         inv_number = invoice.number
                     sale_person = invoice.user_id.name
@@ -1290,7 +1338,7 @@ class CustomerInvoiceWizard(models.TransientModel):
                 for invoice in all_customers_invoice:
                     name = invoice.partner_id.name
                     if invoice.origin:
-                        inv_number = invoice.debt_number
+                        inv_number = invoice.number
                     else:
                         inv_number = invoice.number
                     sale_person = invoice.user_id.name
