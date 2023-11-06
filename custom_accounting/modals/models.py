@@ -21,31 +21,35 @@ class AccountInvoiceInherit(models.Model):
     pkg_no = fields.Char(string="Pkg No")
     weight = fields.Char(string="weight")
     delivery_no = fields.Char(string="Delivery Note No.")
-    debt_number = fields.Char(string="Number", compute="debt_compute", store=True)
-    number = fields.Char(string="Number", store=True)
-
-    @api.onchange('number', 'origin')
-    @api.depends('number', 'origin')
-    def debt_compute(self):
-        for record in self:
-            if record.origin:
-                numeric_origin = ''.join(filter(str.isdigit, record.origin))
-                record.debt_number = f"MADN-{numeric_origin}"
-                record.number = record.debt_number
-            else:
-                record.debt_number = False
-
-    @api.multi
-    def action_invoice_open(self):
-        res = super(AccountInvoiceInherit, self).action_invoice_open()
-
-        # Continue with your custom code after the super call
-        for invoice in self:
-            if invoice.origin:
-                invoice.number = invoice.debt_number
-            else:
-                invoice.number = invoice.move_id.name
-        return res
+    # debt_number = fields.Char(string="Number", compute="debt_compute", store=True)
+    # number = fields.Char(string="Number", store=True)
+    # move_id = fields.Many2one(comodel_name='account.move', string="Account Move Name")
+    #
+    # @api.onchange('number', 'origin')
+    # @api.depends('number', 'origin')
+    # def debt_compute(self):
+    #     for record in self:
+    #         if record.origin:
+    #             numeric_origin = ''.join(filter(str.isdigit, record.origin))
+    #             record.debt_number = f"MADN-{numeric_origin}"
+    #             record.number = record.debt_number
+    #             # if record.type == 'out_invoice':
+    #             #     record.move_id.name = record.debt_number
+    #             # break  # Add this line to exit the loop after processing one record
+    #         else:
+    #             record.debt_number = False
+    #
+    # @api.multi
+    # def action_invoice_open(self):
+    #     res = super(AccountInvoiceInherit, self).action_invoice_open()
+    #
+    #     # Continue with your custom code after the super call
+    #     for invoice in self:
+    #         if invoice.origin:
+    #             invoice.number = invoice.debt_number
+    #         else:
+    #             invoice.number = invoice.move_id.name
+    #     return res
 
     @api.model
     def company_info(self):

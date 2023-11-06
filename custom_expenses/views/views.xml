@@ -35,12 +35,22 @@
                     <button name="reset_expense_sheets" position="attributes">
                         <attribute name="groups">account.group_account_manager,account.group_account_invoice</attribute>
                     </button>
-                    <button name="286" position="attributes">
-                        <attribute name="groups">account.group_account_manager,account.group_account_invoice</attribute>
-                    </button>
+                    <!--                    <button name="286" position="attributes">-->
+                    <!--                        <attribute name="groups">account.group_account_manager,account.group_account_invoice</attribute>-->
+                    <!--                    </button>-->
                 </data>
             </field>
         </record>
+
+
+<!--        <record  id="hr_expenses_group_staff_id_rule" model="ir.rule">-->
+<!--            <field name="name">Staff Access</field>-->
+<!--            <field name="model_id" ref="hr_expense.model_hr_expense"/>-->
+<!--            <field name="domain_force">[('state', 'in', ('draft', 'reported', 'approved', 'refused'))]-->
+<!--            </field>-->
+<!--            <field name="groups" eval="[(4,ref('hr_expense.group_hr_expense_user'))]"/>-->
+<!--        </record>-->
+
 
         <menuitem id="hr_expense.menu_hr_expense_sheet_all_to_post" name="To Post" sequence="2"
                   parent="hr_expense.menu_hr_expense_report"
@@ -83,5 +93,11 @@
                 groups="hr.group_hr_manager"
                 sequence="90"
         />
+
+        <menuitem id="hr_expense.menu_hr_expense_report"
+                  name="Expense Reports"
+                  sequence="2"
+                  parent="hr_expense.menu_hr_expense_root"
+                  groups="hr_expense.group_hr_expense_manager"/>
     </data>
 </odoo>
