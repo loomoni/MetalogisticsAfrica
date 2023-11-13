@@ -99,6 +99,13 @@ class AccountInvoiceInherit(models.Model):
     #         result.append((invoice.id, name))
     #     return result
 
+    @api.multi
+    def action_invoice_set_draft(self):
+        self.write({'state': 'draft'})
+        return True
+
+
+
     @api.model
     def company_info(self):
         company = self.env.user.company_id

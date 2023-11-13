@@ -2,16 +2,16 @@
 <odoo>
     <data>
 
-<!--        <record id="view_customer_invoice_inherit" model="ir.ui.view">-->
-<!--            <field name="name">account.invoice.inherit</field>-->
-<!--            <field name="model">account.invoice</field>-->
-<!--            <field name="inherit_id" ref="account.invoice_tree"/>-->
-<!--            <field name="arch" type="xml">-->
-<!--                <xpath expr="//field[@name='number']" position="attributes">-->
-<!--                    <attribute name="invisible">context.get('origin') or False</attribute>-->
-<!--                </xpath>-->
-<!--            </field>-->
-<!--        </record>-->
+        <!--        <record id="view_customer_invoice_inherit" model="ir.ui.view">-->
+        <!--            <field name="name">account.invoice.inherit</field>-->
+        <!--            <field name="model">account.invoice</field>-->
+        <!--            <field name="inherit_id" ref="account.invoice_tree"/>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                <xpath expr="//field[@name='number']" position="attributes">-->
+        <!--                    <attribute name="invisible">context.get('origin') or False</attribute>-->
+        <!--                </xpath>-->
+        <!--            </field>-->
+        <!--        </record>-->
         <!-- Inherit Form View to Modify it -->
         <record id="invoice_inherit_id" model="ir.ui.view">
             <field name="name">invoice.inherit.id</field>
@@ -21,15 +21,21 @@
                 <xpath expr="//form/header/button[@name='action_invoice_sent']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+                <xpath expr="//form/header/button[@name='148']" position="after">
+                      <button string="Set Back to Draft" name="action_invoice_set_draft" type="object"
+                        states="open"/>
+                </xpath>
                 <xpath expr="//field[@name='payment_term_id']" position="after">
-                    <field name="file_no"  attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
+                    <field name="file_no" attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
                     <field name="awb_bl" attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
-                    <field name="tansad_no" attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
+                    <field name="tansad_no"
+                           attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
                 </xpath>
                 <xpath expr="//field[@name='date_due']" position="after">
                     <field name="pkg_no" attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
                     <field name="weight" attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
-                    <field name="delivery_no" attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
+                    <field name="delivery_no"
+                           attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
                 </xpath>
 
             </field>
