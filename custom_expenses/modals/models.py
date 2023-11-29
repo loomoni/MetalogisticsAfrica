@@ -5,6 +5,10 @@ class HrExpensesInherit(models.Model):
     _inherit = 'hr.expense'
 
     file_number = fields.Char(string="File Number")
+    payment_mode = fields.Selection([
+        ("own_account", "Employee (to reimburse)"),
+        ("company_account", "Company")
+    ], default='company_account', states={'done': [('readonly', True)], 'approved': [('readonly', True)], 'reported': [('readonly', True)]}, string="Paid By")
 
 
 class HrExpensesSheetInherit(models.Model):
