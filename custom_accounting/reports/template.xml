@@ -6,7 +6,7 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <div class="page" style="margin-top: 0;">
-                    <div class="content">
+                    <div class="content">f
                         <table style="width: 95%; margin-left: 45px; margin-bottom: 30px"
                                class="table table-condensed">
                             <tr>
@@ -314,6 +314,7 @@
                                 </tr>
                             </t>
                         </table>
+                        <p><span t-field="o.comment"/></p>
                         <table style="width: 95%; margin-top: 60px; border-collapse: collapse; margin-left: 45px; font-family: Arial, sans-serif; font-size: 12pt; ">
                             <tr>
                                 <td style="width: 25%">
