@@ -372,7 +372,7 @@
                     </div>
                 </div>
                 <div t-else="">
-                    <div style="padding-top: 4px; position: absolute; bottom: 0; left: 0; right: 0; text-align: center;  font-family: Arial, sans-serif; font-size: 10pt;">
+                    <div style="padding-top: 4px; margin-top: 8px; position: absolute; bottom: 0; left: 0; right: 0; text-align: center;  font-family: Arial, sans-serif; font-size: 10pt;">
                         <span>File No.
                             <span t-field="o.file_no"/>
                             |AWB/BL:
