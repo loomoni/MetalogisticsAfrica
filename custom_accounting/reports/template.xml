@@ -364,9 +364,9 @@
                     </div>
                 </div>
 
-                <div class="page-content">
-                    <!-- Your main content here -->
-                </div>
+<!--                <div class="page-content">-->
+<!--                    &lt;!&ndash; Your main content here &ndash;&gt;-->
+<!--                </div>-->
 
 
                 <div t-if="o.origin">
