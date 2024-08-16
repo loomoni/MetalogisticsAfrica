@@ -314,7 +314,9 @@
                                 </tr>
                             </t>
                         </table>
-                        <p><span t-field="o.comment"/></p>
+                        <p>
+                            <span t-field="o.comment"/>
+                        </p>
                         <table style="width: 95%; margin-top: 60px; border-collapse: collapse; margin-left: 45px; font-family: Arial, sans-serif; font-size: 12pt; ">
                             <tr>
                                 <td style="width: 25%">
@@ -362,6 +364,11 @@
                     </div>
                 </div>
 
+                <div class="page-content">
+                    <!-- Your main content here -->
+                </div>
+
+
                 <div t-if="o.origin">
                     <div style="position: absolute; bottom: 0; left: 0; right: 0; text-align: center;  font-family: Arial, sans-serif; font-size: 10pt;">
                         <span>
@@ -372,18 +379,36 @@
                     </div>
                 </div>
                 <div t-else="">
-                    <div style="padding-top: 4px; margin-top: 8px; position: absolute; bottom: 0; left: 0; right: 0; text-align: center;  font-family: Arial, sans-serif; font-size: 10pt;">
+                    <!--                    <div style="padding-top: 4px; margin-top: 8px; position: absolute; bottom: 0; left: 0; right: 0; text-align: center;  font-family: Arial, sans-serif; font-size: 10pt;">-->
+                    <!--                        <span>File No.-->
+                    <!--                            <span t-field="o.file_no"/>-->
+                    <!--                            |AWB/BL:-->
+                    <!--                            <span t-field="o.awb_bl"/>-->
+                    <!--                            TANSADNo.<span t-field="o.tansad_no"/>|PKG No:<span t-field="o.pkg_no"/>|KGS|Weight:-->
+                    <!--                            <span-->
+                    <!--                                    t-field="o.weight"/>KGS|D/N-->
+                    <!--                            No:-->
+                    <!--                            <span t-field="o.delivery_no"/>-->
+                    <!--                        </span>-->
+                    <!--                    </div>-->
+
+                    <div class="footer"
+                         style="position: absolute; bottom: 0; left: 0; right: 0; text-align: center; font-family: Arial, sans-serif; font-size: 10pt;">
                         <span>File No.
                             <span t-field="o.file_no"/>
-                            |AWB/BL:
+                            | AWB/BL:
                             <span t-field="o.awb_bl"/>
-                            TANSADNo.<span t-field="o.tansad_no"/>|PKG No:<span t-field="o.pkg_no"/>|KGS|Weight:
-                            <span
-                                    t-field="o.weight"/>KGS|D/N
-                            No:
+                            TANSAD No.
+                            <span t-field="o.tansad_no"/>
+                            | PKG No:
+                            <span t-field="o.pkg_no"/>
+                            | KGS | Weight:
+                            <span t-field="o.weight"/>
+                            KGS | D/N No:
                             <span t-field="o.delivery_no"/>
                         </span>
                     </div>
+
                 </div>
             </t>
         </t>
