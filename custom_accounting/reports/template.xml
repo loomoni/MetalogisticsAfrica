@@ -6,7 +6,7 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <div class="page" style="margin-top: 0;">
-                    <div class="content">f
+                    <div class="content">
                         <table style="width: 95%; margin-left: 45px; margin-bottom: 30px"
                                class="table table-condensed">
                             <tr>
@@ -106,7 +106,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <span>UNITED NATIONS ROAD</span>
+                                    <span t-field="o.partner_id.street"/>
                                 </td>
                                 <td>
                                     <div t-if="o.origin">
@@ -132,7 +132,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <span>PO BOX 1559</span>
+                                    <span t-field="o.partner_id.street2"/>
                                 </td>
                                 <td></td>
                                 <td style="text-align: right">
@@ -150,7 +150,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <span>DAR ES SALAAM</span>
+                                    <span t-field="o.partner_id.city"/>
                                 </td>
                                 <td></td>
                                 <td></td>
@@ -314,9 +314,9 @@
                                 </tr>
                             </t>
                         </table>
-                        <p>
+                        <div style="margin-left: 45px; font-family: Arial, sans-serif;">
                             <span t-field="o.comment"/>
-                        </p>
+                        </div>
                         <table style="width: 95%; margin-top: 60px; border-collapse: collapse; margin-left: 45px; font-family: Arial, sans-serif; font-size: 12pt; ">
                             <tr>
                                 <td style="width: 25%">
