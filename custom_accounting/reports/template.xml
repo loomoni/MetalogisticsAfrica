@@ -314,7 +314,7 @@
                                 </tr>
                             </t>
                         </table>
-                        <div style="margin-left: 45px; font-family: Arial, sans-serif;">
+                        <div style="margin-top: 10px; padding-top: 10px, margin-left: 45px; font-family: Arial, sans-serif;">
                             <span t-field="o.comment"/>
                         </div>
                         <table style="width: 95%; margin-top: 60px; border-collapse: collapse; margin-left: 45px; font-family: Arial, sans-serif; font-size: 12pt; ">
