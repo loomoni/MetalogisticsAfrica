@@ -120,21 +120,21 @@ class AccountInvoiceInherit(models.Model):
     #
     #     # Invalidate the cache to ensure changes are reflected in the UI
     #     self.invalidate_cache()
-    @api.multi
-    def action_invoice_open(self):
-        # Call the original logic
-        super(AccountInvoiceInherit, self).action_invoice_open()
-
-        # Recompute taxes and amounts
-        self.compute_taxes()
-        self._compute_amount()
-
-        # Force residual amount to equal total amount (WARNING: This bypasses Odoo's reconciliation logic)
-        for invoice in self:
-            invoice.residual = invoice.amount_total
-
-        # Invalidate cache to ensure UI reflects the updated values
-        self.invalidate_cache()
+    # @api.multi
+    # def action_invoice_open(self):
+    #     # Call the original logic
+    #     super(AccountInvoiceInherit, self).action_invoice_open()
+    #
+    #     # Recompute taxes and amounts
+    #     self.compute_taxes()
+    #     self._compute_amount()
+    #
+    #     # Force residual amount to equal total amount (WARNING: This bypasses Odoo's reconciliation logic)
+    #     for invoice in self:
+    #         invoice.residual = invoice.amount_total
+    #
+    #     # Invalidate cache to ensure UI reflects the updated values
+    #     self.invalidate_cache()
 
 
     # @api.multi
