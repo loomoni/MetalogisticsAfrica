@@ -22,6 +22,7 @@ class AccountInvoiceInherit(models.Model):
     pkg_no = fields.Char(string="Pkg No")
     weight = fields.Char(string="weight")
     delivery_no = fields.Char(string="Delivery Note No.")
+
     # debt_number = fields.Char(string="Number", compute="debt_compute", store=True)
     # number = fields.Char(string="Number", store=True)
     # move_id = fields.Many2one(comodel_name='account.move', string="Account Move Name")
@@ -104,7 +105,60 @@ class AccountInvoiceInherit(models.Model):
         self.write({'state': 'draft'})
         return True
 
+    # @api.multi
+    # def action_invoice_open(self):
+    #     # Call the original logic
+    #     super(AccountInvoiceInherit, self).action_invoice_open()
+    #
+    #     # Ensure all amounts are recalculated
+    #     self.compute_taxes()  # Recompute taxes
+    #     self._compute_amount()  # Recompute amounts
+    #
+    #     # Manually recompute residual amounts for each invoice
+    #     for invoice in self:
+    #         invoice._compute_residual()
+    #
+    #     # Invalidate the cache to ensure changes are reflected in the UI
+    #     self.invalidate_cache()
+    @api.multi
+    def action_invoice_open(self):
+        # Call the original logic
+        super(AccountInvoiceInherit, self).action_invoice_open()
 
+        # Recompute taxes and amounts
+        self.compute_taxes()
+        self._compute_amount()
+
+        # Force residual amount to equal total amount (WARNING: This bypasses Odoo's reconciliation logic)
+        for invoice in self:
+            invoice.residual = invoice.amount_total
+
+        # Invalidate cache to ensure UI reflects the updated values
+        self.invalidate_cache()
+
+
+    # @api.multi
+    # def write(self, vals):
+    #     # Update the fields as needed
+    #     res = super(AccountInvoiceInherit, self).write(vals)
+    #
+    #     # Recompute residual manually after updating the invoice line
+    #     self.compute_taxes()
+    #     self._compute_amount()
+    #     self._compute_residual()
+    #
+    #     return res
+
+        # _logger.info("Updated Amount Total: %s, Updated Amount Residual: %s", self.amount_total, self.amount_residual)
+
+    # @api.multi
+    # def action_invoice_open(self):
+    #     for rec in self:
+    #         rec.residual = rec.amount_total
+    #         # self.write({'state': 'open'})
+    #         return True
+
+    # self._compute_amount()
 
     @api.model
     def company_info(self):
