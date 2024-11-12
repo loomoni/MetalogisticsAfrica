@@ -12,7 +12,7 @@ from odoo import fields, models, api, _
 from odoo.tools import datetime
 
 
-class AccountInvoiceInherit(models.Model):
+class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
     _order = 'id DESC'
 
@@ -102,8 +102,70 @@ class AccountInvoiceInherit(models.Model):
 
     @api.multi
     def action_invoice_set_draft(self):
-        self.write({'state': 'draft'})
+        # self.write({'state': 'draft'})
+        total_paid = sum(payment.amount for payment in self.payment_ids)
+        self.residual = self.amount_total - total_paid
         return True
+
+    # @api.multi
+    # def action_invoice_open(self):
+    #     # Call the original method to handle the standard workflow
+    #     result = super(AccountInvoiceInherit, self).action_invoice_open()
+    #
+    #     # Recompute the residual and other related fields
+    #     for invoice in self:
+    #         if invoice.state == 'open':  # Ensure the invoice is validated (open)
+    #             total_paid = sum(payment.amount for payment in invoice.payment_ids)
+    #             if total_paid > 0:
+    #                 invoice.compute_taxes()  # Recompute taxes if necessary
+    #                 invoice._onchange_recompute_dynamic_lines()  # Recompute dynamic fields
+    #                 invoice._compute_residual()  # Recompute the residual to update 'Amount Due'
+    #
+    #     return result
+
+    # @api.multi
+    # def action_invoice_open(self):
+    #     # Call the original method to handle the standard workflow
+    #     result = super(AccountInvoice, self).action_invoice_open()
+    #
+    #     # Custom logic for recalculating the due amount after reopening and validation
+    #     for invoice in self:
+    #         if invoice.state == 'open':  # Ensure the invoice is validated (open)
+    #             total_paid = sum(payment.amount for payment in invoice.payment_ids)
+    #             invoice.residual = invoice.amount_total - total_paid
+    #             invoice.compute_taxes()  # Recompute taxes if needed
+    #
+    #     return result
+
+    # @api.multi
+    # def action_invoice_open(self):
+    #     # Call the original method to handle the standard workflow
+    #     result = super(AccountInvoiceInherit, self).action_invoice_open()
+    #
+    #     # Custom logic to recalculate the due amount
+    #     for invoice in self:
+    #         # if invoice.state == 'open':  # Ensure the invoice is validated (open)
+    #             # total_paid = sum(payment.amount for payment in invoice.payment_ids)
+    #             # if total_paid > 0:
+    #             # invoice.compute_taxes()  # Ensure taxes are recalculated if needed
+    #             # Refresh the residual field by calling a built-in method
+    #         invoice._compute_residual()
+    #
+    #     return result
+
+    # @api.multi
+    # def action_invoice_open(self):
+    #     # Call the original method to handle the standard workflow
+    #     result = super(AccountInvoiceInherit, self).action_invoice_open()
+    #
+    #     # Custom logic for recalculating the due amount after reopening and validation
+    #     for invoice in self:
+    #         if invoice.state == 'open':  # Ensure the invoice is validated (open)
+    #             total_paid = sum(payment.amount for payment in invoice.payment_ids)
+    #             invoice.residual = invoice.amount_total - total_paid
+    #             invoice.compute_taxes()  # Recompute taxes if needed
+    #
+    #     return result
 
     # @api.multi
     # def action_invoice_open(self):
