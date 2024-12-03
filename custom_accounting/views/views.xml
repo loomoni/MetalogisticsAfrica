@@ -22,14 +22,14 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//form/header/button[@name='148']" position="after">
-                      <button string="Set Back to Draft" name="action_invoice_set_draft" type="object"/>
-<!--                        states="open"/>-->
+                    <button string="Set Back to Draft" name="action_invoice_set_draft" type="object"
+                            states="open"/>
                 </xpath>
 
-                   <xpath expr="//form/header/button[@name='148']" position="after">
-                      <button string="Cancel" name="action_invoice_cancel" type="object"
-                        />
-                </xpath>
+<!--                <xpath expr="//form/header/button[@name='148']" position="after">-->
+<!--                    <button string="Cancel" name="action_invoice_cancel" type="object"-->
+<!--                    />-->
+<!--                </xpath>-->
                 <xpath expr="//field[@name='payment_term_id']" position="after">
                     <field name="file_no" attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
                     <field name="awb_bl" attrs="{'readonly':[('state','in', ('open','paid','cancel','in_payment'))]}"/>
