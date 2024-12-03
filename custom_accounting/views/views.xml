@@ -22,8 +22,8 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//form/header/button[@name='148']" position="after">
-                      <button string="Set Back to Draft" name="action_invoice_set_draft" type="object"
-                        states="open"/>
+                      <button string="Set Back to Draft" name="action_invoice_set_draft" type="object"/>
+<!--                        states="open"/>-->
                 </xpath>
 
                    <xpath expr="//form/header/button[@name='148']" position="after">
