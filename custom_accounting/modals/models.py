@@ -102,7 +102,7 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def action_invoice_set_draft(self):
-        # self.write({'state': 'draft'})
+        self.write({'state': 'draft'})
         total_paid = sum(payment.amount for payment in self.payment_ids)
         self.residual = self.amount_total - total_paid
         self.residual_signed = self.amount_total - total_paid
